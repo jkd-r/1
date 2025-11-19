@@ -151,6 +151,23 @@ Each loop builds upon previous discoveries, with systems becoming increasingly c
 - Quality assurance and bug fixing
 - Final presentation and user experience refinement
 
+## Build & Coding Roadmap
+
+The development of Protocol EMR follows a structured roadmap that organizes the 10 workstreams into logical phases prioritizing gameplay-first implementation. Each development phase is designed to deliver functional, testable features within focused sprint cycles of 5 or fewer tasks.
+
+**Development Phases:**
+
+- **Foundation & Setup**: Project environment and core infrastructure
+- **Core Systems**: Fundamental gameplay mechanics and player controls
+- **Player Interface & Interaction**: UI, inventory, and item systems
+- **Communication & NPC Systems**: AI narrator and character interactions
+- **Narrative & Mission Systems**: Quest progression and branching story
+- **Content Generation & Polish**: Procedural systems and final optimization
+
+The roadmap emphasizes **gameplay first**, ensuring core player experience is established early and refined iteratively. Each phase builds upon previous systems with clear integration points and measurable milestones.
+
+For a detailed breakdown of sprints, task distribution, and success criteria, see the **[Build & Coding Roadmap](./build-coding-roadmap.md)** document.
+
 ## Success Metrics
 
 A successful prototype will achieve:
