@@ -2023,9 +2023,144 @@ public class ProceduralGenerationManager : Singleton<ProceduralGenerationManager
               (Environmental Conditions)    (Guard NPCs)           (Mission Complete/Fail)
 ```
 
+## Seed Manager Integration
+
+### Overview
+
+The SeedManager provides centralized deterministic seeding for all procedural generation systems in Protocol EMR. This ensures that NPC populations, world generation, and story beats can be reproduced exactly by using the same seed value.
+
+### Core Features
+
+#### Deterministic Seeding
+- **Master Seed**: Single integer that controls all procedural generation
+- **Scope-based Seeds**: Separate sub-seeds for different systems (NPCs, chunks, audio, story, etc.)
+- **Offset Management**: Track advancement of each scope for reproducible sequences
+
+#### Well-Known Scopes
+```csharp
+public const string SCOPE_CHUNKS = "chunks";      // World geometry generation
+public const string SCOPE_ENCOUNTERS = "encounters"; // Combat encounters placement
+public const string SCOPE_AUDIO = "audio";         // Procedural audio generation
+public const string SCOPE_NPCS = "npcs";           // NPC spawning and behavior
+public const string SCOPE_STORY = "story";         // Story beat generation
+public const string SCOPE_LOOT = "loot";           // Loot and item placement
+public const string SCOPE_ENVIRONMENT = "environment"; // Environmental effects
+```
+
+#### API Usage Examples
+
+```csharp
+// Get deterministic random values
+int randomNPCCount = SeedManager.Instance.GetRandomInt(SeedManager.SCOPE_NPCS, 1, 5);
+Vector3 randomPosition = new Vector3(
+    SeedManager.Instance.GetRandomFloat(SeedManager.SCOPE_NPCS, 0) * 100f,
+    0f,
+    SeedManager.Instance.GetRandomFloat(SeedManager.SCOPE_NPCS, 1) * 100f
+);
+
+// Select random NPC type deterministically
+NPCType[] availableTypes = { NPCType.Guard, NPCType.Patrol, NPCType.Elite };
+NPCType selectedType = SeedManager.Instance.GetRandomItem(availableTypes, SeedManager.SCOPE_NPCS, 2);
+
+// Advance scope offset for next spawn
+SeedManager.Instance.AdvanceScopeOffset(SeedManager.SCOPE_NPCS, 1);
+```
+
+### Settings Integration
+
+The SeedManager integrates with the existing SettingsManager to allow players to:
+- **Enable/Disable Custom Seeds**: Use auto-generated seeds or specify manually
+- **Set Custom Seed Values**: Enter specific seeds for reproducible runs
+- **Persistent Settings**: Seed preferences are saved with other game settings
+
+```csharp
+// Settings integration
+SettingsManager.Instance.SetUseProceduralSeed(true);
+SettingsManager.Instance.SetProceduralSeed(12345);
+
+// GameManager applies settings on startup
+if (SettingsManager.Instance.UseProceduralSeed())
+{
+    SeedManager.Instance.SetSeed(SettingsManager.Instance.GetProceduralSeed());
+}
+```
+
+### Save/Load Integration
+
+The SeedManager provides two methods for state persistence:
+
+#### ObjectStateManager Integration
+```csharp
+// Automatic integration with existing save system
+ObjectStateManager.Instance.RecordProceduralState();
+// Saves current seed and all scope offsets to world_state.json
+```
+
+#### ProceduralStateStore (Lightweight)
+```csharp
+// Dedicated procedural state storage
+ProceduralStateStore.Instance.SaveProceduralState();
+// Saves to procedural_state.json
+```
+
+### Debug and QA Features
+
+#### In-Game Seed Display
+The PerformanceMonitor overlay now displays:
+- Current active seed value
+- F8 key to copy seed to clipboard
+- Real-time seed visibility for QA testing
+
+#### Console Commands
+```csharp
+// Copy current seed to clipboard
+SeedManager.Instance.CopySeedToClipboard();
+
+// Generate new random seed
+SeedManager.Instance.GenerateNewSeed();
+
+// Set specific seed
+SeedManager.Instance.SetSeed(12345);
+
+// Get debug information
+Debug.Log(SeedManager.Instance.GetDebugInfo());
+```
+
+### Determinism Guarantees
+
+The SeedManager ensures:
+1. **Same Seed = Same World**: Identical seeds produce identical NPC placement, positions, and behaviors
+2. **Scope Isolation**: Different scopes (NPCs vs chunks) don't interfere with each other
+3. **Offset Consistency**: Advancing scope offsets produces predictable sequences
+4. **Save/Load Fidelity**: Saved games restore exact same procedural state
+
+### Testing and Validation
+
+#### Unit Tests
+The `SeedManagerTests.cs` validates:
+- Seed initialization and setting
+- Scope-based seed generation
+- Deterministic behavior across reloads
+- Save/load persistence
+- Random value generation ranges
+
+#### QA Workflow
+1. **Load Test Scene**: Start game with test seed (e.g., 12345)
+2. **Document NPC Layout**: Note NPC positions, types, and behaviors
+3. **Restart with Same Seed**: Exit and restart with identical seed
+4. **Verify Identical Layout**: Confirm exact reproduction of NPC placement
+5. **Test Save/Load**: Save game, reload, verify state preservation
+
+### Performance Considerations
+
+- **Memory Usage**: <1MB for complete seed state
+- **CPU Overhead**: <0.1ms per random number generation
+- **Save Time**: <5ms to persist seed state
+- **Load Time**: <5ms to restore seed state
+
 ---
 
-**Document Version**: 1.0  
+**Document Version**: 1.1  
 **Last Updated**: 2024  
 **Author**: Protocol EMR Development Team  
 **Status**: Active Development

@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using ProtocolEMR.Core.Procedural;
 
 namespace ProtocolEMR.Core.AI
 {
@@ -58,9 +59,22 @@ namespace ProtocolEMR.Core.AI
         public Vector3 GetRandomPosition()
         {
             Vector3 randomPos = zoneCenter;
-            randomPos.x += Random.Range(-zoneSize.x * 0.5f, zoneSize.x * 0.5f);
-            randomPos.y += Random.Range(-zoneSize.y * 0.5f, zoneSize.y * 0.5f);
-            randomPos.z += Random.Range(-zoneSize.z * 0.5f, zoneSize.z * 0.5f);
+            
+            // Use SeedManager for deterministic positioning
+            if (SeedManager.Instance != null)
+            {
+                randomPos.x += SeedManager.Instance.GetRandomFloat(SeedManager.SCOPE_NPCS, seedOffset) * zoneSize.x - zoneSize.x * 0.5f;
+                randomPos.y += SeedManager.Instance.GetRandomFloat(SeedManager.SCOPE_NPCS, seedOffset + 1) * zoneSize.y - zoneSize.y * 0.5f;
+                randomPos.z += SeedManager.Instance.GetRandomFloat(SeedManager.SCOPE_NPCS, seedOffset + 2) * zoneSize.z - zoneSize.z * 0.5f;
+            }
+            else
+            {
+                // Fallback to Unity random
+                randomPos.x += Random.Range(-zoneSize.x * 0.5f, zoneSize.x * 0.5f);
+                randomPos.y += Random.Range(-zoneSize.y * 0.5f, zoneSize.y * 0.5f);
+                randomPos.z += Random.Range(-zoneSize.z * 0.5f, zoneSize.z * 0.5f);
+            }
+            
             return randomPos;
         }
 
@@ -69,6 +83,10 @@ namespace ProtocolEMR.Core.AI
         /// </summary>
         public int GetSpawnCount()
         {
+            if (SeedManager.Instance != null)
+            {
+                return SeedManager.Instance.GetRandomInt(SeedManager.SCOPE_NPCS, minNPCs, maxNPCs + 1, seedOffset + 10);
+            }
             return Random.Range(minNPCs, maxNPCs + 1);
         }
 
@@ -80,6 +98,10 @@ namespace ProtocolEMR.Core.AI
             if (allowedNPCTypes.Length == 0)
                 return NPCType.Guard;
 
+            if (SeedManager.Instance != null)
+            {
+                return SeedManager.Instance.GetRandomItem(allowedNPCTypes, SeedManager.SCOPE_NPCS, seedOffset + 20);
+            }
             return allowedNPCTypes[Random.Range(0, allowedNPCTypes.Length)];
         }
 
@@ -187,9 +209,14 @@ namespace ProtocolEMR.Core.AI
                 npcParent = parentObj.transform;
             }
 
-            // Initialize random seed
-            if (useGlobalSeed)
+            // Initialize random seed - now handled by SeedManager
+            if (useGlobalSeed && SeedManager.Instance != null)
             {
+                SeedManager.Instance.SetSeed(globalSeed);
+            }
+            else if (useGlobalSeed)
+            {
+                // Fallback if SeedManager not available
                 Random.InitState(globalSeed);
             }
 
@@ -355,9 +382,15 @@ namespace ProtocolEMR.Core.AI
         /// </summary>
         private void ConfigureNPC(NPCController controller, NPCSpawnZone zone)
         {
-            // Apply procedural seed
-            if (zone.useProceduralSeed)
+            // Apply procedural seed using SeedManager
+            if (zone.useProceduralSeed && SeedManager.Instance != null)
             {
+                int npcIndex = allSpawnedNPCs.Count;
+                SeedManager.Instance.AdvanceScopeOffset(SeedManager.SCOPE_NPCS, zone.seedOffset + npcIndex);
+            }
+            else if (zone.useProceduralSeed)
+            {
+                // Fallback if SeedManager not available
                 int seed = globalSeed + zone.seedOffset + GetInstanceID() + allSpawnedNPCs.Count;
                 Random.InitState(seed);
             }
@@ -395,7 +428,16 @@ namespace ProtocolEMR.Core.AI
         private void GeneratePatrolForNPC(NPCController controller, NPCSpawnZone zone)
         {
             List<Vector3> patrolPoints = new List<Vector3>();
-            int pointCount = Random.Range(3, 6);
+            int pointCount;
+            
+            if (SeedManager.Instance != null)
+            {
+                pointCount = SeedManager.Instance.GetRandomInt(SeedManager.SCOPE_NPCS, 3, 7, zone.seedOffset + 30);
+            }
+            else
+            {
+                pointCount = Random.Range(3, 6);
+            }
             
             for (int i = 0; i < pointCount; i++)
             {

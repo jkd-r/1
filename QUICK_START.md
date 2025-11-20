@@ -48,6 +48,7 @@ Unity will automatically:
 | Crouch | Ctrl |
 | Jump | Space |
 | Interact | E |
+| Copy Seed | F8 |
 | Pause | ESC |
 | Performance Monitor | F1 |
 
@@ -189,6 +190,14 @@ Linux: ~/.config/unity3d/[Company]/ProtocolEMR/
 - **Documentation**: `Assets/Documentation/`
 - **Console Logs**: Check Unity Console (Ctrl+Shift+C)
 - **Performance**: Press F1 for real-time stats
+- **Procedural Seeds**: Press F8 to copy current seed for reproducible testing
+
+## Procedural Generation Quick Tips
+
+- **Reproducible Testing**: Use F8 to copy seed, restart with same seed for identical world
+- **Custom Seeds**: Set in Settings Manager for reproducible runs
+- **Debug Info**: Current seed shown in Performance Monitor overlay
+- **Save/Load**: Seeds automatically preserved with game saves
 
 ---
 

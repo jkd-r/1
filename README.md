@@ -34,6 +34,7 @@ Protocol EMR is a first-person narrative-driven game with procedurally generated
 | Pause | ESC | Start |
 | Fire | LMB | Right Trigger |
 | Aim | RMB | Left Trigger |
+| Copy Seed | F8 | - |
 
 ---
 
@@ -352,6 +353,52 @@ refactor: Extract input callbacks to separate methods
 - **Unity Asset Store**: UI elements
 
 See full credits in `CREDITS.txt` (to be added in Sprint 6)
+
+---
+
+## Procedural Seed System
+
+Protocol EMR features a deterministic procedural generation system that ensures reproducible gameplay experiences through seed-based randomization.
+
+### Key Features
+
+- **Deterministic Generation**: Same seed = identical world layout, NPC placement, and story beats
+- **Scope-based Seeding**: Separate random streams for NPCs, chunks, audio, story, loot, and environment
+- **Settings Integration**: Players can set custom seeds or use auto-generated ones
+- **Save/Load Support**: Seeds are preserved with game saves for exact state restoration
+
+### Using Seeds
+
+**In-Game**:
+- Press **F8** to copy current seed to clipboard
+- View current seed in Performance Monitor overlay (F1)
+- Seeds are automatically saved with your game
+
+**Settings**:
+```csharp
+// Enable custom seed in settings
+SettingsManager.Instance.SetUseProceduralSeed(true);
+SettingsManager.Instance.SetProceduralSeed(12345);
+```
+
+**Programmatic Usage**:
+```csharp
+// Get deterministic random values
+int npcCount = SeedManager.Instance.GetRandomInt(SeedManager.SCOPE_NPCS, 1, 5);
+Vector3 position = new Vector3(
+    SeedManager.Instance.GetRandomFloat(SeedManager.SCOPE_NPCS, 0) * 100f,
+    0f,
+    SeedManager.Instance.GetRandomFloat(SeedManager.SCOPE_NPCS, 1) * 100f
+);
+```
+
+### QA Testing
+
+For reproducible testing:
+1. Set a specific seed (e.g., 12345)
+2. Document NPC positions and behaviors
+3. Restart with same seed to verify identical generation
+4. Test save/load to ensure state preservation
 
 ---
 

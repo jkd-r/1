@@ -3,6 +3,7 @@ using ProtocolEMR.Core.Input;
 using ProtocolEMR.Core.Settings;
 using ProtocolEMR.Core.Performance;
 using ProtocolEMR.Core.Dialogue;
+using ProtocolEMR.Core.Procedural;
 
 namespace ProtocolEMR.Core
 {
@@ -20,6 +21,8 @@ namespace ProtocolEMR.Core
         [SerializeField] private SettingsManager settingsManagerPrefab;
         [SerializeField] private PerformanceMonitor performanceMonitorPrefab;
         [SerializeField] private UnknownDialogueManager unknownDialogueManagerPrefab;
+        [SerializeField] private SeedManager seedManagerPrefab;
+        [SerializeField] private GameObject proceduralStateStorePrefab;
 
         private bool isPaused = false;
         private float timeScaleBeforePause = 1.0f;
@@ -49,6 +52,9 @@ namespace ProtocolEMR.Core
             {
                 InputManager.Instance.OnPause += TogglePause;
             }
+
+            // Initialize seed system after settings are loaded
+            InitializeSeedSystem();
 
             Debug.Log("Protocol EMR - Game Manager Initialized");
             Debug.Log($"Unity Version: {Application.unityVersion}");
@@ -88,6 +94,35 @@ namespace ProtocolEMR.Core
             {
                 Instantiate(unknownDialogueManagerPrefab);
                 Debug.Log("UnknownDialogueManager instantiated by GameManager");
+            }
+
+            if (SeedManager.Instance == null && seedManagerPrefab != null)
+            {
+                Instantiate(seedManagerPrefab);
+                Debug.Log("SeedManager instantiated by GameManager");
+            }
+
+            if (ProceduralStateStore.Instance == null && proceduralStateStorePrefab != null)
+            {
+                Instantiate(proceduralStateStorePrefab);
+                Debug.Log("ProceduralStateStore instantiated by GameManager");
+            }
+        }
+
+        /// <summary>
+        /// Initializes the seed system based on settings.
+        /// </summary>
+        private void InitializeSeedSystem()
+        {
+            if (SeedManager.Instance == null || SettingsManager.Instance == null)
+                return;
+
+            // Apply settings-based seed configuration
+            if (SettingsManager.Instance.UseProceduralSeed())
+            {
+                int seed = SettingsManager.Instance.GetProceduralSeed();
+                SeedManager.Instance.SetSeed(seed);
+                Debug.Log($"Applied settings-based seed: {seed}");
             }
         }
 
