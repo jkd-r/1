@@ -177,11 +177,13 @@ namespace ProtocolEMR.Core.AI
         private List<GameObject> allSpawnedNPCs = new List<GameObject>();
         private Dictionary<NPCType, GameObject> npcPrefabMap = new Dictionary<NPCType, GameObject>();
         private int currentLevel = 1;
+        private NPCSpawnZone[] dynamicSpawnZones = null;
+        private bool useDynamicZones = false;
 
         // Properties
         public int SpawnedNPCCount => allSpawnedNPCs.Count;
         public List<GameObject> AllSpawnedNPCs => allSpawnedNPCs;
-        public NPCSpawnZone[] SpawnZones => spawnZones;
+        public NPCSpawnZone[] SpawnZones => useDynamicZones ? dynamicSpawnZones : spawnZones;
 
         private void Start()
         {
@@ -517,6 +519,29 @@ namespace ProtocolEMR.Core.AI
             }
             
             return npcs;
+        }
+
+        /// <summary>
+        /// Sets dynamic spawn zones from procedural generation.
+        /// </summary>
+        public void SetDynamicSpawnZones(NPCSpawnZone[] zones)
+        {
+            dynamicSpawnZones = zones;
+            useDynamicZones = true;
+
+            // Reset spawn flags on dynamic zones
+            foreach (var zone in dynamicSpawnZones)
+            {
+                zone.hasSpawned = false;
+            }
+
+            Debug.Log($"NPCSpawner configured with {zones.Length} dynamic spawn zones");
+
+            // Spawn all zones immediately if spawner is already active
+            if (npcParent != null)
+            {
+                SpawnAllZones();
+            }
         }
 
         /// <summary>
