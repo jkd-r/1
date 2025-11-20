@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 using ProtocolEMR.Core.Dialogue;
 
 namespace ProtocolEMR.Core.Dialogue
@@ -278,6 +279,122 @@ namespace ProtocolEMR.Core.Dialogue
                 UnknownMessageEvent evt = new UnknownMessageEvent(MessageTrigger.Custom);
                 evt.AddContextData("context", context);
                 UnknownDialogueManager.Instance.TriggerMessage(evt);
+            }
+        }
+
+        // Dynamic Event Triggers
+        public static void TriggerDynamicEventStarted(string eventId, string eventType, int chunkId, float threatLevel, Dictionary<string, object> additionalContext = null)
+        {
+            if (UnknownDialogueManager.Instance != null)
+            {
+                MessageTrigger trigger = MessageTrigger.DynamicEventStarted;
+                
+                // Select appropriate trigger based on event type
+                if (eventType.Contains("combat", System.StringComparison.OrdinalIgnoreCase))
+                    trigger = MessageTrigger.DynamicEventCombat;
+                else if (eventType.Contains("puzzle", System.StringComparison.OrdinalIgnoreCase))
+                    trigger = MessageTrigger.DynamicEventPuzzle;
+                else if (eventType.Contains("ambient", System.StringComparison.OrdinalIgnoreCase))
+                    trigger = MessageTrigger.DynamicEventAmbient;
+                
+                UnknownMessageEvent evt = new UnknownMessageEvent(trigger);
+                evt.AddContextData("eventId", eventId);
+                evt.AddContextData("eventType", eventType);
+                evt.AddContextData("chunkId", chunkId);
+                evt.AddContextData("threatLevel", threatLevel);
+                evt.AddContextData("isStart", true);
+                
+                if (additionalContext != null)
+                {
+                    foreach (var kvp in additionalContext)
+                    {
+                        evt.AddContextData(kvp.Key, kvp.Value);
+                    }
+                }
+                
+                UnknownDialogueManager.Instance.TriggerMessage(evt);
+            }
+        }
+
+        public static void TriggerDynamicEventResolved(string eventId, bool success, float duration, Dictionary<string, object> additionalContext = null)
+        {
+            if (UnknownDialogueManager.Instance != null)
+            {
+                MessageTrigger trigger = success ? MessageTrigger.DynamicEventResolved : MessageTrigger.DynamicEventFailed;
+                UnknownMessageEvent evt = new UnknownMessageEvent(trigger);
+                evt.AddContextData("eventId", eventId);
+                evt.AddContextData("success", success);
+                evt.AddContextData("duration", duration);
+                evt.AddContextData("isStart", false);
+                
+                if (additionalContext != null)
+                {
+                    foreach (var kvp in additionalContext)
+                    {
+                        evt.AddContextData(kvp.Key, kvp.Value);
+                    }
+                }
+                
+                UnknownDialogueManager.Instance.TriggerMessage(evt);
+            }
+        }
+
+        public static void TriggerDynamicEventMilestone(string eventId, string milestoneName, int progress, Dictionary<string, object> additionalContext = null)
+        {
+            if (UnknownDialogueManager.Instance != null)
+            {
+                UnknownMessageEvent evt = new UnknownMessageEvent(MessageTrigger.DynamicEventMilestone);
+                evt.AddContextData("eventId", eventId);
+                evt.AddContextData("milestoneName", milestoneName);
+                evt.AddContextData("progress", progress);
+                
+                if (additionalContext != null)
+                {
+                    foreach (var kvp in additionalContext)
+                    {
+                        evt.AddContextData(kvp.Key, kvp.Value);
+                    }
+                }
+                
+                UnknownDialogueManager.Instance.TriggerMessage(evt);
+            }
+        }
+
+        public static void TriggerDynamicEventBatch(List<UnknownMessageEvent> events)
+        {
+            if (UnknownDialogueManager.Instance != null && events != null && events.Count > 0)
+            {
+                // Trigger the highest priority event from the batch
+                // Priority: Combat > Puzzle > Ambient
+                UnknownMessageEvent selectedEvent = events[0];
+                int highestPriority = -1;
+                
+                foreach (var evt in events)
+                {
+                    int priority = GetEventPriority(evt.trigger);
+                    if (priority > highestPriority)
+                    {
+                        highestPriority = priority;
+                        selectedEvent = evt;
+                    }
+                }
+                
+                UnknownDialogueManager.Instance.TriggerMessage(selectedEvent);
+            }
+        }
+
+        private static int GetEventPriority(MessageTrigger trigger)
+        {
+            switch (trigger)
+            {
+                case MessageTrigger.DynamicEventCombat:
+                    return 3;
+                case MessageTrigger.DynamicEventPuzzle:
+                    return 2;
+                case MessageTrigger.DynamicEventAmbient:
+                    return 1;
+                default:
+                    return 0;
             }
         }
     }

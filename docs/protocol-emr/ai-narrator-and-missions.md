@@ -140,6 +140,21 @@ The AI Narrator can trigger spontaneous encounters based on player behavior and 
    - Dream sequences
    - Memory fragments
 
+### Dynamic Event Orchestrator (Sprint 9+)
+
+The **DynamicEventOrchestrator** links the procedural world simulation with the AI narrator:
+
+1. **WorldStateBlackboard** aggregates chunk-level metrics (position, threat level, mission flags, player style deltas).
+2. **ProceduralEventProfile** assets declare spawn rules, cooldown windows, Unknown dialogue tags, and success/failure behaviors.
+3. **SeedManager** ensures deterministic selection by using a dedicated `dynamic_events` scope per chunk.
+4. **NPCManager/DifficultyManager** feed threat + encounter data, allowing combat waves to scale automatically.
+5. **UnknownDialogueTriggers** receive orchestrator callbacks (`DynamicEventAmbient/Combat/Puzzle`, `DynamicEventStarted`, `DynamicEventResolved/Failed`, `DynamicEventMilestone`) with hydrated context for bespoke responses.
+
+**Performance + QA Notes**
+- Scheduling budget: <1ms/frame (tracked via `enablePerformanceLogging`).
+- Press **F1** to open the Performance Monitor, confirm active event counts, then **F9** to toggle the orchestrator HUD overlay.
+- QA can force ambient/combat/puzzle events via seed replay, then watch the Unknown phone UI for matching dialogue beats (chunk id, threat, player style deltas appear in debug logs/contexts).
+
 ## Mission/Quest Pipeline
 
 ### Mission Structure

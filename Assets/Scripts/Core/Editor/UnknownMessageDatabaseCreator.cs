@@ -44,6 +44,7 @@ namespace ProtocolEMR.Core.Editor
             messages.AddRange(GenerateWarningMessages());
             messages.AddRange(GenerateEncouragementMessages());
             messages.AddRange(GenerateCommentaryMessages());
+            messages.AddRange(GenerateDynamicEventMessages());
             
             return messages;
         }
@@ -239,6 +240,41 @@ namespace ProtocolEMR.Core.Editor
             messages.Add(CreateMessage("End of the line.", MessageCategory.Commentary, MessageTrigger.PlayerDeath, 0, 3, 0));
             messages.Add(CreateMessage("Unfortunate.", MessageCategory.Commentary, MessageTrigger.PlayerDeath, 0, 3, 0));
             messages.Add(CreateMessage("Try again.", MessageCategory.Commentary, MessageTrigger.PlayerDeath, 0, 3, 0));
+            
+            return messages;
+        }
+
+        private static List<UnknownMessage> GenerateDynamicEventMessages()
+        {
+            List<UnknownMessage> messages = new List<UnknownMessage>();
+            
+            messages.Add(CreateMessage("Ambient anomaly forming.", MessageCategory.Exploration, MessageTrigger.DynamicEventAmbient, 0, 3, 0));
+            messages.Add(CreateMessage("Something subtle in that sector.", MessageCategory.Commentary, MessageTrigger.DynamicEventAmbient, 1, 3, 1));
+            messages.Add(CreateMessage("Worldstate deviation recorded.", MessageCategory.Narrative, MessageTrigger.DynamicEventAmbient, 2, 3, 2));
+            
+            messages.Add(CreateMessage("Encounter wave inbound.", MessageCategory.Warning, MessageTrigger.DynamicEventCombat, 0, 3, 0));
+            messages.Add(CreateMessage("They're converging on you.", MessageCategory.Warning, MessageTrigger.DynamicEventCombat, 1, 3, 1));
+            messages.Add(CreateMessage("High-risk cluster detected.", MessageCategory.Warning, MessageTrigger.DynamicEventCombat, 2, 3, 2));
+            
+            messages.Add(CreateMessage("Puzzle node activating.", MessageCategory.Puzzle, MessageTrigger.DynamicEventPuzzle, 0, 3, 0));
+            messages.Add(CreateMessage("Encryption layer exposed.", MessageCategory.Puzzle, MessageTrigger.DynamicEventPuzzle, 1, 3, 1));
+            messages.Add(CreateMessage("This requires finesse.", MessageCategory.Commentary, MessageTrigger.DynamicEventPuzzle, 2, 3, 2));
+            
+            messages.Add(CreateMessage("Dynamic protocol engaged.", MessageCategory.Mission, MessageTrigger.DynamicEventStarted, 0, 3, 0));
+            messages.Add(CreateMessage("Stay focused.", MessageCategory.Encouragement, MessageTrigger.DynamicEventStarted, 1, 3, 1));
+            messages.Add(CreateMessage("Trajectory altered.", MessageCategory.Narrative, MessageTrigger.DynamicEventStarted, 2, 3, 2));
+            
+            messages.Add(CreateMessage("Resolved. For now.", MessageCategory.Commentary, MessageTrigger.DynamicEventResolved, 0, 3, 0));
+            messages.Add(CreateMessage("Threat subsided.", MessageCategory.Encouragement, MessageTrigger.DynamicEventResolved, 1, 3, 1));
+            messages.Add(CreateMessage("Stability restored.", MessageCategory.Narrative, MessageTrigger.DynamicEventResolved, 2, 3, 2));
+            
+            messages.Add(CreateMessage("Milestone reached.", MessageCategory.Mission, MessageTrigger.DynamicEventMilestone, 0, 3, 0));
+            messages.Add(CreateMessage("Trajectory acceptable.", MessageCategory.Commentary, MessageTrigger.DynamicEventMilestone, 1, 3, 1));
+            messages.Add(CreateMessage("The world adjusts with you.", MessageCategory.Narrative, MessageTrigger.DynamicEventMilestone, 2, 3, 2));
+            
+            messages.Add(CreateMessage("You lost that thread.", MessageCategory.Warning, MessageTrigger.DynamicEventFailed, 0, 3, 0));
+            messages.Add(CreateMessage("System collapse in that sector.", MessageCategory.Warning, MessageTrigger.DynamicEventFailed, 1, 3, 1));
+            messages.Add(CreateMessage("Failure recorded for analysis.", MessageCategory.Commentary, MessageTrigger.DynamicEventFailed, 2, 3, 2));
             
             return messages;
         }

@@ -20,6 +20,8 @@ The Unknown Dialogue System is Protocol EMR's mysterious communication framework
 3. **UnknownPhoneUI** - Phone-style chat interface
 4. **UnknownHUDOverlay** - Glitch-effect screen overlay
 5. **UnknownDialogueTriggers** - Static helper class for triggering messages
+6. **DynamicEventOrchestrator** *(Sprint 9+)* - Procedural scheduler that feeds bespoke triggers into the dialogue system
+7. **WorldStateBlackboard** *(Sprint 9+)* - Lightweight world-state cache shared between procedural systems and the narrator
 
 ### Message Flow
 
@@ -32,6 +34,38 @@ Display via Phone UI and/or HUD Overlay
     ↓
 History Tracking & Cooldown Management
 ```
+
+### Dynamic Event Integration (Sprint 9+)
+
+| Component | Responsibility | Dialogue Touchpoints |
+|-----------|----------------|----------------------|
+| **DynamicEventOrchestrator** | Scans chunk-level world state, schedules ambient/combat/puzzle encounters deterministically via SeedManager | Emits `TriggerDynamicEventStarted`, `TriggerDynamicEventMilestone`, `TriggerDynamicEventResolved/Failed` with contextual payloads |
+| **WorldStateBlackboard** | Tracks chunk occupancy, threat levels, player style deltas, mission flags | Supplies `UnknownMessageEvent` context data (chunk id, threat, player ratios, tags) |
+| **ProceduralEventProfile** | ScriptableObject defining spawn rules, cooldowns, dialogue tags | Declares which Unknown triggers fire on start/end/milestones |
+| **PerformanceMonitor** | Surfaced debug metrics for QA (F1) | Shows active dynamic events + F9 toggle hint |
+
+**Trigger Set (new):**
+- `DynamicEventAmbient` – low-threat anomalies, environmental beats
+- `DynamicEventCombat` – waves/ambushes sourced from NPCManager
+- `DynamicEventPuzzle` – emergent logic/pattern encounters
+- `DynamicEventStarted` / `DynamicEventResolved` / `DynamicEventFailed`
+- `DynamicEventMilestone` – progress markers or batched notifications
+
+**Context Hydration:** Every orchestrator callback injects:
+- `eventId`, `eventType`, `chunkId`, `threatLevel`
+- Player style ratios (stealth/combat/exploration/puzzle)
+- Mission flags + custom dialogue tags from the active profile
+- Timing metadata (`duration`, `progress`, `isStart`)
+
+**Spam Guardrails:**
+- Dialogue triggers are queued and processed at most once per frame
+- Unknown global cooldown still applies, plus per-event cooldowns from the orchestrator
+- `TriggerDynamicEventBatch()` can collapse multiple same-frame callbacks into the highest-priority message (Combat > Puzzle > Ambient)
+
+**QA Workflow:**
+1. Press **F1** to open the Performance Monitor overlay → verify “Dynamic Events” block.
+2. Press **F9** to toggle the orchestrator debug HUD and visualize active/upcoming events.
+3. Trigger ambient/combat/puzzle encounters (or use SeedManager deterministic scopes) and confirm matching Unknown messages with chunk/threat context in the phone UI.
 
 ## Message Database
 
@@ -48,7 +82,7 @@ History Tracking & Cooldown Management
 
 ### Triggers
 
-The system supports 30+ trigger types including:
+The system supports 35+ trigger types including:
 
 - Player combat actions (hit, damage, dodge)
 - Puzzle interactions (encountered, failed, solved)
@@ -56,6 +90,7 @@ The system supports 30+ trigger types including:
 - Mission updates (start, milestone, complete)
 - Story progression (plot points, procedural story)
 - Player behavior (stealth, aggression, reading)
+- **Dynamic events** *(Sprint 9+)*: ambient, combat, puzzle, started, resolved, failed, milestone
 
 ### Message Properties
 

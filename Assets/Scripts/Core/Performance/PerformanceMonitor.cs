@@ -102,6 +102,15 @@ namespace ProtocolEMR.Core.Performance
                 stringBuilder.AppendLine();
             }
             
+            // Display event orchestrator info if available
+            if (DynamicEventOrchestrator.Instance != null)
+            {
+                stringBuilder.AppendLine($"<b>DYNAMIC EVENTS</b>");
+                stringBuilder.AppendLine($"Active Events: {DynamicEventOrchestrator.Instance.ActiveEvents.Count}");
+                stringBuilder.AppendLine($"Press F9 for details");
+                stringBuilder.AppendLine();
+            }
+            
             stringBuilder.AppendLine($"Press {toggleKey} to toggle");
 
             string displayText = stringBuilder.ToString();
