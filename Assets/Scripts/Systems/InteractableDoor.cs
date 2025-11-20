@@ -15,15 +15,29 @@ namespace ProtocolEMR.Systems
         [SerializeField] private bool startOpen = false;
         [SerializeField] private Transform doorPivot;
 
+        [Header("Door Audio")]
+        [SerializeField] private AudioClip doorOpenSound;
+        [SerializeField] private AudioClip doorCloseSound;
+        [SerializeField] private float doorSoundVolume = 0.7f;
+
         private bool isOpen;
         private Quaternion closedRotation;
         private Quaternion openRotation;
         private bool isAnimating = false;
+        private AudioSource audioSource;
 
         private void Start()
         {
             if (doorPivot == null)
                 doorPivot = transform;
+
+            audioSource = GetComponent<AudioSource>();
+            if (audioSource == null)
+            {
+                audioSource = gameObject.AddComponent<AudioSource>();
+                audioSource.spatialBlend = 1f;
+                audioSource.maxDistance = 50f;
+            }
 
             closedRotation = doorPivot.localRotation;
             openRotation = closedRotation * Quaternion.Euler(0, openAngle, 0);
@@ -59,6 +73,12 @@ namespace ProtocolEMR.Systems
         {
             isOpen = !isOpen;
             isAnimating = true;
+
+            AudioClip soundToPlay = isOpen ? doorOpenSound : doorCloseSound;
+            if (soundToPlay != null && audioSource != null)
+            {
+                audioSource.PlayOneShot(soundToPlay, doorSoundVolume);
+            }
 
             Debug.Log($"Door {gameObject.name} is now {(isOpen ? "open" : "closed")}");
         }

@@ -1,5 +1,6 @@
 using UnityEngine;
 using ProtocolEMR.Core.Input;
+using ProtocolEMR.Systems;
 
 namespace ProtocolEMR.Core.Player
 {
@@ -230,17 +231,11 @@ namespace ProtocolEMR.Core.Player
 
         private void OnInteract()
         {
-            Ray ray = new Ray(UnityEngine.Camera.main.transform.position, UnityEngine.Camera.main.transform.forward);
-            RaycastHit hit;
-
-            if (Physics.Raycast(ray, out hit, interactionRange, interactableLayer))
+            IInteractable interactable = InteractionManager.Instance?.GetCurrentInteractable();
+            if (interactable != null && interactable.CanInteract())
             {
-                IInteractable interactable = hit.collider.GetComponent<IInteractable>();
-                if (interactable != null)
-                {
-                    interactable.OnInteract(gameObject);
-                    Debug.Log($"Interacted with: {hit.collider.name}");
-                }
+                interactable.OnInteract(gameObject);
+                Debug.Log($"Interacted with interactable object");
             }
         }
 
@@ -271,5 +266,7 @@ namespace ProtocolEMR.Core.Player
     public interface IInteractable
     {
         void OnInteract(GameObject interactor);
+        string GetInteractionMessage();
+        bool CanInteract();
     }
 }

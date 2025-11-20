@@ -4,25 +4,31 @@ using ProtocolEMR.Core.Player;
 namespace ProtocolEMR.Systems
 {
     /// <summary>
-    /// Example interactable object that implements the IInteractable interface.
+    /// Base interactable object that implements the IInteractable and IHighlightable interfaces.
     /// Demonstrates how to create objects the player can interact with using the E key.
     /// Can be attached to any GameObject with a Collider to make it interactable.
     /// </summary>
-    public class InteractableObject : MonoBehaviour, IInteractable
+    public class InteractableObject : MonoBehaviour, IInteractable, IHighlightable
     {
         [Header("Interaction Settings")]
-        [SerializeField] private string interactionMessage = "Press E to interact";
-        [SerializeField] private bool canInteractMultipleTimes = true;
-        [SerializeField] private float interactionCooldown = 1.0f;
+        [SerializeField] protected string interactionMessage = "Press E to interact";
+        [SerializeField] protected bool canInteractMultipleTimes = true;
+        [SerializeField] protected float interactionCooldown = 1.0f;
 
         [Header("Visual Feedback")]
         [SerializeField] private Color highlightColor = Color.yellow;
         [SerializeField] private bool showHighlight = true;
+        [SerializeField] private float glowIntensity = 1.5f;
+
+        [Header("Audio Feedback")]
+        [SerializeField] private AudioClip highlightSound;
+        [SerializeField] private float highlightSoundVolume = 0.5f;
 
         private bool hasInteracted = false;
         private float lastInteractionTime = -999f;
         private Renderer objectRenderer;
         private Color originalColor;
+        private bool isHighlighted = false;
 
         private void Awake()
         {
@@ -65,16 +71,29 @@ namespace ProtocolEMR.Systems
             Debug.Log($"{gameObject.name}: Default interaction performed");
         }
 
-        private void OnMouseEnter()
+        public void OnHighlight()
         {
+            if (isHighlighted) return;
+
+            isHighlighted = true;
+
             if (showHighlight && objectRenderer != null)
             {
-                objectRenderer.material.color = highlightColor;
+                objectRenderer.material.color = highlightColor * glowIntensity;
+            }
+
+            if (highlightSound != null && AudioListener.volume > 0)
+            {
+                AudioSource.PlayClipAtPoint(highlightSound, transform.position, highlightSoundVolume);
             }
         }
 
-        private void OnMouseExit()
+        public void OnUnhighlight()
         {
+            if (!isHighlighted) return;
+
+            isHighlighted = false;
+
             if (showHighlight && objectRenderer != null)
             {
                 objectRenderer.material.color = originalColor;
@@ -102,5 +121,7 @@ namespace ProtocolEMR.Systems
             hasInteracted = false;
             lastInteractionTime = -999f;
         }
+
+        public bool IsHighlighted => isHighlighted;
     }
 }
