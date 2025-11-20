@@ -183,6 +183,20 @@ namespace ProtocolEMR.Core.Settings
             currentSettings.gameplay.enableUnknownMessages = enabled;
             SaveSettings();
         }
+
+        public bool UseProceduralSeed() => currentSettings.gameplay.useProceduralSeed;
+        public void SetUseProceduralSeed(bool useSeed)
+        {
+            currentSettings.gameplay.useProceduralSeed = useSeed;
+            SaveSettings();
+        }
+
+        public int GetProceduralSeed() => currentSettings.gameplay.proceduralSeed;
+        public void SetProceduralSeed(int seed)
+        {
+            currentSettings.gameplay.proceduralSeed = seed;
+            SaveSettings();
+        }
     }
 
     [Serializable]
@@ -221,7 +235,9 @@ namespace ProtocolEMR.Core.Settings
                     showObjectiveMarkers = true,
                     unknownHintFrequency = 0.5f,
                     unknownPersonality = 1,
-                    enableUnknownMessages = true
+                    enableUnknownMessages = true,
+                    useProceduralSeed = false,
+                    proceduralSeed = 0
                 },
                 accessibility = new AccessibilitySettings
                 {
@@ -269,6 +285,8 @@ namespace ProtocolEMR.Core.Settings
         public float unknownHintFrequency;
         public int unknownPersonality;
         public bool enableUnknownMessages;
+        public bool useProceduralSeed;
+        public int proceduralSeed;
     }
 
     [Serializable]

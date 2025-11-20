@@ -28,10 +28,12 @@ namespace ProtocolEMR.Systems
         public class WorldState
         {
             public List<ObjectState> objectStates = new List<ObjectState>();
+            public ProceduralState proceduralState = new ProceduralState();
         }
 
         [SerializeField] private string stateFileName = "world_state.json";
         private Dictionary<string, ObjectState> objectStates = new Dictionary<string, ObjectState>();
+        private ProceduralState proceduralState = new ProceduralState();
         private string savePath;
 
         private static ObjectStateManager instance;
@@ -148,6 +150,9 @@ namespace ProtocolEMR.Systems
                 worldState.objectStates.Add(state);
             }
 
+            // Include procedural state
+            worldState.proceduralState = proceduralState;
+
             string json = JsonUtility.ToJson(worldState, true);
             File.WriteAllText(savePath, json);
 
@@ -172,6 +177,24 @@ namespace ProtocolEMR.Systems
             foreach (var state in worldState.objectStates)
             {
                 objectStates[state.objectId] = state;
+            }
+
+            // Load procedural state
+            if (worldState.proceduralState != null)
+            {
+                proceduralState = worldState.proceduralState;
+                
+                // Restore seed to SeedManager if available
+                if (ProtocolEMR.Core.Procedural.SeedManager.Instance != null)
+                {
+                    ProtocolEMR.Core.Procedural.SeedManager.Instance.SetSeed(proceduralState.seed);
+                    
+                    // Restore scope offsets
+                    foreach (var offset in proceduralState.scopeOffsets)
+                    {
+                        ProtocolEMR.Core.Procedural.SeedManager.Instance.SetScopeOffset(offset.scope, offset.offset);
+                    }
+                }
             }
 
             Debug.Log($"World state loaded from {savePath}");
@@ -204,5 +227,58 @@ namespace ProtocolEMR.Systems
         {
             return new List<ObjectState>(objectStates.Values);
         }
+
+        /// <summary>
+        /// Records the current procedural state from SeedManager.
+        /// </summary>
+        public void RecordProceduralState()
+        {
+            if (ProtocolEMR.Core.Procedural.SeedManager.Instance != null)
+            {
+                proceduralState.seed = ProtocolEMR.Core.Procedural.SeedManager.Instance.CurrentSeed;
+                
+                proceduralState.scopeOffsets.Clear();
+                string[] scopes = { 
+                    ProtocolEMR.Core.Procedural.SeedManager.SCOPE_CHUNKS,
+                    ProtocolEMR.Core.Procedural.SeedManager.SCOPE_ENCOUNTERS,
+                    ProtocolEMR.Core.Procedural.SeedManager.SCOPE_AUDIO,
+                    ProtocolEMR.Core.Procedural.SeedManager.SCOPE_NPCS,
+                    ProtocolEMR.Core.Procedural.SeedManager.SCOPE_STORY,
+                    ProtocolEMR.Core.Procedural.SeedManager.SCOPE_LOOT,
+                    ProtocolEMR.Core.Procedural.SeedManager.SCOPE_ENVIRONMENT
+                };
+                
+                foreach (string scope in scopes)
+                {
+                    proceduralState.scopeOffsets.Add(new ScopeOffsetState
+                    {
+                        scope = scope,
+                        offset = ProtocolEMR.Core.Procedural.SeedManager.Instance.GetScopeOffset(scope)
+                    });
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the current procedural state.
+        /// </summary>
+        public ProceduralState GetProceduralState()
+        {
+            return proceduralState;
+        }
+    }
+
+    [Serializable]
+    public class ProceduralState
+    {
+        public int seed;
+        public List<ScopeOffsetState> scopeOffsets = new List<ScopeOffsetState>();
+    }
+
+    [Serializable]
+    public class ScopeOffsetState
+    {
+        public string scope;
+        public int offset;
     }
 }

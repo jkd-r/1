@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Text;
+using ProtocolEMR.Core.Procedural;
 
 namespace ProtocolEMR.Core.Performance
 {
@@ -91,6 +92,16 @@ namespace ProtocolEMR.Core.Performance
             stringBuilder.AppendLine($"Resolution: {Screen.width}x{Screen.height}");
             stringBuilder.AppendLine($"Quality: {QualitySettings.names[QualitySettings.GetQualityLevel()]}");
             stringBuilder.AppendLine();
+            
+            // Display seed information if SeedManager is available
+            if (SeedManager.Instance != null)
+            {
+                stringBuilder.AppendLine($"<b>PROCEDURAL SEED</b>");
+                stringBuilder.AppendLine($"Seed: {SeedManager.Instance.CurrentSeed}");
+                stringBuilder.AppendLine($"Press F8 to copy seed");
+                stringBuilder.AppendLine();
+            }
+            
             stringBuilder.AppendLine($"Press {toggleKey} to toggle");
 
             string displayText = stringBuilder.ToString();
