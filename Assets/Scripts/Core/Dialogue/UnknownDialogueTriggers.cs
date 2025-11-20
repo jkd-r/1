@@ -397,5 +397,62 @@ namespace ProtocolEMR.Core.Dialogue
                     return 0;
             }
         }
+
+        // Additional convenience methods for playtest flow
+        public static void TriggerWelcome()
+        {
+            TriggerGameStart();
+        }
+
+        public static void TriggerTutorial(int tutorialStep)
+        {
+            if (UnknownDialogueManager.Instance != null)
+            {
+                UnknownMessageEvent evt = new UnknownMessageEvent(MessageTrigger.Custom);
+                evt.AddContextData("tutorialStep", tutorialStep);
+                evt.AddContextData("context", "tutorial");
+                UnknownDialogueManager.Instance.TriggerMessage(evt);
+            }
+        }
+
+        public static void TriggerPuzzleDiscovery(string puzzleName)
+        {
+            if (UnknownDialogueManager.Instance != null)
+            {
+                UnknownMessageEvent evt = new UnknownMessageEvent(MessageTrigger.PuzzleEncountered);
+                evt.AddContextData("puzzleName", puzzleName);
+                UnknownDialogueManager.Instance.TriggerMessage(evt);
+            }
+        }
+
+        public static void TriggerThreatDetected(int threatLevel)
+        {
+            if (UnknownDialogueManager.Instance != null)
+            {
+                UnknownMessageEvent evt = new UnknownMessageEvent(MessageTrigger.DangerDetected);
+                evt.AddContextData("threatLevel", threatLevel);
+                UnknownDialogueManager.Instance.TriggerMessage(evt);
+            }
+        }
+
+        public static void TriggerExtractionReady()
+        {
+            if (UnknownDialogueManager.Instance != null)
+            {
+                UnknownMessageEvent evt = new UnknownMessageEvent(MessageTrigger.Custom);
+                evt.AddContextData("context", "extraction_ready");
+                UnknownDialogueManager.Instance.TriggerMessage(evt);
+            }
+        }
+
+        public static void TriggerMissionComplete()
+        {
+            TriggerMissionComplete("Main Mission");
+        }
+
+        public static void TriggerDeath()
+        {
+            TriggerPlayerDeath();
+        }
     }
 }

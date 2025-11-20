@@ -6,6 +6,32 @@ This guide walks you through setting up a basic test scene with all core systems
 
 ---
 
+## ⚡ **RECOMMENDED: Automated Setup**
+
+The fastest way to set up the Main scene is using the automated setup tool:
+
+1. **Open Unity Editor** with Protocol EMR project
+2. **Menu**: `Protocol EMR → Setup → Setup Main Scene`
+3. **Wait**: All required systems will be created automatically
+4. **Validate**: `Protocol EMR → Setup → Validate Scene`
+5. **Done**: Press Play to test!
+
+This creates:
+- ✅ GameManager
+- ✅ MissionSystem
+- ✅ PlaytestFlowController
+- ✅ RegressionHarness
+- ✅ ProceduralLevelBuilder
+- ✅ NPCSpawner
+- ✅ DynamicEventOrchestrator
+- ✅ WorldStateBlackboard
+- ✅ PlayerSpawnPoint
+- ✅ Basic level geometry (floor, lighting)
+
+**Continue reading for manual setup instructions if needed.**
+
+---
+
 ## Step 1: Create New Scene
 
 1. **File → New Scene**
@@ -15,13 +41,19 @@ This guide walks you through setting up a basic test scene with all core systems
 
 ## Step 2: Set Up Core Systems
 
-### GameManager
+### Automated Setup (Recommended)
+1. **Menu**: `Protocol EMR → Setup → Setup Main Scene`
+2. **Validate**: `Protocol EMR → Setup → Validate Scene`
+
+### Manual Setup (Alternative)
+
+#### GameManager
 1. **Create Empty GameObject**: Right-click Hierarchy → Create Empty
 2. **Rename**: "GameManager"
 3. **Add Component**: GameManager script
 4. Position: (0, 0, 0)
 
-**Note**: GameManager will auto-instantiate InputManager, SettingsManager, and PerformanceMonitor if not present.
+**Note**: GameManager will auto-instantiate InputManager, SettingsManager, PerformanceMonitor, SeedManager, and UnknownDialogueManager if not present.
 
 ---
 
