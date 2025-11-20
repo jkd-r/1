@@ -249,6 +249,22 @@ namespace ProtocolEMR.Core.Player
             currentStamina = maxStamina;
         }
 
+        /// <summary>
+        /// Attempts to consume stamina for actions like combat attacks.
+        /// </summary>
+        /// <param name="amount">Amount of stamina to consume</param>
+        /// <returns>True if stamina was available and consumed</returns>
+        public bool ConsumesStamina(float amount)
+        {
+            if (currentStamina >= amount)
+            {
+                currentStamina -= amount;
+                staminaRegenTimer = staminaRegenDelay;
+                return true;
+            }
+            return false;
+        }
+
         private void OnDrawGizmosSelected()
         {
             if (UnityEngine.Camera.main != null)
