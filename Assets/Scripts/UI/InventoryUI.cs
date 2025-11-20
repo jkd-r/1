@@ -4,13 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ProtocolEMR.Core.Inventory;
-using ProtocolEMR.Core.Input;
 
 namespace ProtocolEMR.UI
 {
-    public class InventoryUIManager : MonoBehaviour
+    public class InventoryUI : MonoBehaviour
     {
-        public static InventoryUIManager Instance { get; private set; }
+        public static InventoryUI Instance { get; private set; }
 
         [Header("Inventory Canvas")]
         [SerializeField] private Canvas inventoryCanvas;
@@ -54,6 +53,9 @@ namespace ProtocolEMR.UI
 
         public event Action<ItemData> OnItemSelected;
         public event Action OnInventoryToggled;
+        public event Action<bool> OnVisibilityChanged;
+
+        public bool IsOpen => isOpen;
 
         private void Awake()
         {
@@ -73,11 +75,6 @@ namespace ProtocolEMR.UI
         {
             InitializeInventoryUI();
 
-            if (InputManager.Instance != null)
-            {
-                InputManager.Instance.OnInventory += ToggleInventory;
-            }
-
             if (InventoryManager.Instance != null)
             {
                 InventoryManager.Instance.OnInventoryChanged += RefreshInventoryDisplay;
@@ -89,11 +86,6 @@ namespace ProtocolEMR.UI
 
         private void OnDestroy()
         {
-            if (InputManager.Instance != null)
-            {
-                InputManager.Instance.OnInventory -= ToggleInventory;
-            }
-
             if (InventoryManager.Instance != null)
             {
                 InventoryManager.Instance.OnInventoryChanged -= RefreshInventoryDisplay;
@@ -177,6 +169,7 @@ namespace ProtocolEMR.UI
             inventoryCanvas.enabled = true;
             StartCoroutine(AnimateInventoryOpen());
             RefreshInventoryDisplay();
+            OnVisibilityChanged?.Invoke(true);
             OnInventoryToggled?.Invoke();
         }
 
@@ -186,6 +179,8 @@ namespace ProtocolEMR.UI
 
             isOpen = false;
             StartCoroutine(AnimateInventoryClose());
+            OnVisibilityChanged?.Invoke(false);
+            OnInventoryToggled?.Invoke();
         }
 
         private System.Collections.IEnumerator AnimateInventoryOpen()

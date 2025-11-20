@@ -1,9 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System;
 using System.Collections.Generic;
 using ProtocolEMR.Core.Dialogue;
-using ProtocolEMR.Core.Input;
 
 namespace ProtocolEMR.Core.UI
 {
@@ -36,6 +36,8 @@ namespace ProtocolEMR.Core.UI
         private List<ChatMessageUI> displayedMessages = new List<ChatMessageUI>();
         private bool isTyping = false;
 
+        public event Action<bool> OnPhoneVisibilityChanged;
+
         public bool IsPhoneOpen => isPhoneOpen;
 
         private void Awake()
@@ -59,11 +61,6 @@ namespace ProtocolEMR.Core.UI
                 UnknownDialogueManager.Instance.OnMessageDisplay += HandleMessageDisplay;
             }
 
-            if (InputManager.Instance != null)
-            {
-                InputManager.Instance.OnPhone += TogglePhone;
-            }
-
             UpdateUnreadBadge();
         }
 
@@ -72,11 +69,6 @@ namespace ProtocolEMR.Core.UI
             if (UnknownDialogueManager.Instance != null)
             {
                 UnknownDialogueManager.Instance.OnMessageDisplay -= HandleMessageDisplay;
-            }
-
-            if (InputManager.Instance != null)
-            {
-                InputManager.Instance.OnPhone -= TogglePhone;
             }
         }
 
@@ -110,6 +102,7 @@ namespace ProtocolEMR.Core.UI
             }
 
             Time.timeScale = open ? 0f : 1f;
+            OnPhoneVisibilityChanged?.Invoke(isPhoneOpen);
         }
 
         public void AddMessage(UnknownMessage message)

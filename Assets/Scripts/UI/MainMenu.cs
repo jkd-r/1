@@ -4,14 +4,13 @@ using UnityEngine.SceneManagement;
 using System;
 using System.Collections;
 using ProtocolEMR.Core;
-using ProtocolEMR.Core.Input;
 using ProtocolEMR.Core.Settings;
 
 namespace ProtocolEMR.UI
 {
-    public class MenuUIManager : MonoBehaviour
+    public class MainMenu : MonoBehaviour
     {
-        public static MenuUIManager Instance { get; private set; }
+        public static MainMenu Instance { get; private set; }
 
         [Header("Pause Menu")]
         [SerializeField] private Canvas pauseMenuCanvas;
@@ -45,11 +44,22 @@ namespace ProtocolEMR.UI
         [SerializeField] private Button confirmButton;
         [SerializeField] private Button cancelConfirmButton;
 
+        [Header("Options")]
+        [SerializeField] private bool showMainMenuOnStart = false;
+
         private bool isPauseMenuOpen = false;
         private bool isSettingsOpen = false;
+        private bool isMainMenuOpen = false;
         private float animationDuration = 0.3f;
 
+        public bool IsPauseMenuOpen => isPauseMenuOpen;
+        public bool IsSettingsOpen => isSettingsOpen;
+        public bool IsMainMenuOpen => isMainMenuOpen;
+
         public event Action OnPauseMenuToggled;
+        public event Action<bool> OnPauseMenuStateChanged;
+        public event Action<bool> OnSettingsMenuStateChanged;
+        public event Action<bool> OnMainMenuStateChanged;
 
         private void Awake()
         {
@@ -68,29 +78,37 @@ namespace ProtocolEMR.UI
             SetupMainMenu();
             SetupSettingsMenu();
 
-            if (InputManager.Instance != null)
-            {
-                InputManager.Instance.OnPause += TogglePauseMenu;
-            }
-
             if (pauseMenuCanvas != null)
             {
                 pauseMenuCanvas.enabled = false;
             }
-        }
 
-        private void OnDestroy()
-        {
-            if (InputManager.Instance != null)
+            if (settingsMenuCanvas != null)
             {
-                InputManager.Instance.OnPause -= TogglePauseMenu;
+                settingsMenuCanvas.enabled = false;
+            }
+
+            if (mainMenuCanvas != null)
+            {
+                if (showMainMenuOnStart)
+                {
+                    ShowMainMenu(true);
+                }
+                else
+                {
+                    mainMenuCanvas.enabled = false;
+                    if (mainMenuGroup != null)
+                    {
+                        mainMenuGroup.alpha = 0f;
+                    }
+                }
             }
         }
 
         private void SetupPauseMenu()
         {
             if (resumeButton != null)
-                resumeButton.onClick.AddListener(ResumGame);
+                resumeButton.onClick.AddListener(ResumeGame);
 
             if (settingsButton != null)
                 settingsButton.onClick.AddListener(OpenSettings);
@@ -158,15 +176,23 @@ namespace ProtocolEMR.UI
             if (isPauseMenuOpen) return;
 
             isPauseMenuOpen = true;
-            pauseMenuCanvas.enabled = true;
+            if (pauseMenuCanvas != null)
+            {
+                pauseMenuCanvas.enabled = true;
+            }
 
             if (GameManager.Instance != null)
             {
                 GameManager.Instance.SetPaused(true);
             }
 
-            StartCoroutine(AnimateCanvasOpen(pauseMenuGroup));
+            if (pauseMenuGroup != null)
+            {
+                StartCoroutine(AnimateCanvasOpen(pauseMenuGroup));
+            }
+
             OnPauseMenuToggled?.Invoke();
+            OnPauseMenuStateChanged?.Invoke(true);
         }
 
         public void ClosePauseMenu()
@@ -174,14 +200,35 @@ namespace ProtocolEMR.UI
             if (!isPauseMenuOpen) return;
 
             isPauseMenuOpen = false;
-            StartCoroutine(AnimateCanvasClose(pauseMenuGroup, () =>
+            if (pauseMenuGroup != null)
+            {
+                StartCoroutine(AnimateCanvasClose(pauseMenuGroup, () =>
+                {
+                    if (pauseMenuCanvas != null)
+                    {
+                        pauseMenuCanvas.enabled = false;
+                    }
+                    if (GameManager.Instance != null)
+                    {
+                        GameManager.Instance.SetPaused(false);
+                    }
+                }));
+            }
+            else if (pauseMenuCanvas != null)
             {
                 pauseMenuCanvas.enabled = false;
                 if (GameManager.Instance != null)
                 {
                     GameManager.Instance.SetPaused(false);
                 }
-            }));
+            }
+            else if (GameManager.Instance != null)
+            {
+                GameManager.Instance.SetPaused(false);
+            }
+
+            OnPauseMenuToggled?.Invoke();
+            OnPauseMenuStateChanged?.Invoke(false);
         }
 
         public void OpenSettings()
@@ -189,8 +236,17 @@ namespace ProtocolEMR.UI
             if (isSettingsOpen) return;
 
             isSettingsOpen = true;
-            settingsMenuCanvas.enabled = true;
-            StartCoroutine(AnimateCanvasOpen(settingsMenuGroup));
+            if (settingsMenuCanvas != null)
+            {
+                settingsMenuCanvas.enabled = true;
+            }
+
+            if (settingsMenuGroup != null)
+            {
+                StartCoroutine(AnimateCanvasOpen(settingsMenuGroup));
+            }
+
+            OnSettingsMenuStateChanged?.Invoke(true);
         }
 
         public void CloseSettings()
@@ -198,10 +254,89 @@ namespace ProtocolEMR.UI
             if (!isSettingsOpen) return;
 
             isSettingsOpen = false;
-            StartCoroutine(AnimateCanvasClose(settingsMenuGroup, () =>
+            if (settingsMenuGroup != null)
             {
-                settingsMenuCanvas.enabled = false;
-            }));
+                StartCoroutine(AnimateCanvasClose(settingsMenuGroup, () =>
+                {
+                    if (settingsMenuCanvas != null)
+                    {
+                        settingsMenuCanvas.enabled = false;
+                    }
+                    OnSettingsMenuStateChanged?.Invoke(false);
+                }));
+            }
+            else
+            {
+                if (settingsMenuCanvas != null)
+                {
+                    settingsMenuCanvas.enabled = false;
+                }
+                OnSettingsMenuStateChanged?.Invoke(false);
+            }
+        }
+
+        public void ShowMainMenu(bool instant = false)
+        {
+            if (mainMenuCanvas == null || isMainMenuOpen)
+            {
+                return;
+            }
+
+            isMainMenuOpen = true;
+            mainMenuCanvas.enabled = true;
+
+            if (mainMenuGroup != null)
+            {
+                if (instant)
+                {
+                    mainMenuGroup.alpha = 1f;
+                }
+                else
+                {
+                    StartCoroutine(AnimateCanvasOpen(mainMenuGroup));
+                }
+            }
+
+            OnMainMenuStateChanged?.Invoke(true);
+        }
+
+        public void HideMainMenu(bool instant = false)
+        {
+            if (mainMenuCanvas == null || !isMainMenuOpen)
+            {
+                return;
+            }
+
+            isMainMenuOpen = false;
+            if (mainMenuGroup != null && !instant)
+            {
+                StartCoroutine(AnimateCanvasClose(mainMenuGroup, () =>
+                {
+                    mainMenuCanvas.enabled = false;
+                    OnMainMenuStateChanged?.Invoke(false);
+                }));
+            }
+            else
+            {
+                if (mainMenuGroup != null)
+                {
+                    mainMenuGroup.alpha = 0f;
+                }
+                mainMenuCanvas.enabled = false;
+                OnMainMenuStateChanged?.Invoke(false);
+            }
+        }
+
+        public void ToggleMainMenu()
+        {
+            if (isMainMenuOpen)
+            {
+                HideMainMenu();
+            }
+            else
+            {
+                ShowMainMenu();
+            }
         }
 
         private void SwitchSettingsTab(int tabIndex)
@@ -229,16 +364,16 @@ namespace ProtocolEMR.UI
             CloseSettings();
         }
 
-        private void ResumGame()
+        private void ResumeGame()
         {
             ClosePauseMenu();
         }
 
         private void OpenInventoryFromPause()
         {
-            if (InventoryUIManager.Instance != null)
+            if (InventoryUI.Instance != null)
             {
-                InventoryUIManager.Instance.OpenInventory();
+                InventoryUI.Instance.OpenInventory();
             }
         }
 
