@@ -1,13 +1,14 @@
 # Protocol EMR - Quick Start Guide
 
-Get up and running with Protocol EMR in under 5 minutes.
+Get up and running with Protocol EMR v1.0.0 in under 5 minutes.
 
 ---
 
 ## Prerequisites
 
-- **Unity 2022.3 LTS** installed
+- **Unity 2022.3.15f1 LTS** or newer
 - **Git** (optional, for version control)
+- **Build Tools** (for creating release builds)
 
 ---
 
@@ -208,14 +209,45 @@ Linux: ~/.config/unity3d/[Company]/ProtocolEMR/
 2. Add Open Scenes
 3. Click "Build and Run"
 
+### Automated Build Pipeline (Recommended)
+1. **Protocol EMR** → **Build** → **Release Candidate** (for testing)
+2. **Protocol EMR** → **Build** → **Gold Master** (for release)
+3. Wait for automated build process
+4. Find builds in `Builds/[version]/` folder
+
 ### Development Build
 1. File → Build Settings
 2. ✅ Enable "Development Build"
 3. ✅ Enable "Script Debugging"
 4. Click "Build and Run"
 
+### Performance Testing
+1. **Protocol EMR** → **Performance** → **Configure Quality Settings**
+2. **Protocol EMR** → **Performance** → **Analyze Performance Hotspots**
+3. Press **F9** in-game for automated performance validation
+4. Check **Performance Monitor** (F1) for real-time metrics
+
 ---
 
-**Ready to develop!** 🚀
+## Release Checklist ✅
 
-Next: [Sprint 2 - Locomotion & Animations](./docs/protocol-emr/build-coding-roadmap.md)
+### Pre-Build Validation
+- [ ] Performance targets met (60 FPS @ 1080p Medium)
+- [ ] Memory usage <3.5 GB during testing
+- [ ] No console errors/warnings
+- [ ] All platforms build successfully
+- [ ] Telemetry and crash logging functional
+
+### Post-Build Testing
+- [ ] Windows build launches and runs
+- [ ] macOS build launches and runs
+- [ ] Performance validation passes (60+ FPS)
+- [ ] Input systems work correctly
+- [ ] Save/load functionality works
+- [ ] Procedural generation is deterministic
+
+---
+
+**Ready to release!** 🚀
+
+Protocol EMR v1.0.0 - Build Pipeline Complete
