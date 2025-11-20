@@ -2,12 +2,13 @@ using UnityEngine;
 using ProtocolEMR.Core.Input;
 using ProtocolEMR.Core.Settings;
 using ProtocolEMR.Core.Performance;
+using ProtocolEMR.Core.SaveSystem;
 
 namespace ProtocolEMR.Core
 {
     /// <summary>
     /// Central game manager for Protocol EMR.
-    /// Initializes and manages core systems including input, settings, and performance monitoring.
+    /// Initializes and manages core systems including input, settings, performance monitoring, and save/load.
     /// Handles game state transitions and system lifecycle management.
     /// </summary>
     public class GameManager : MonoBehaviour
@@ -18,6 +19,9 @@ namespace ProtocolEMR.Core
         [SerializeField] private InputManager inputManagerPrefab;
         [SerializeField] private SettingsManager settingsManagerPrefab;
         [SerializeField] private PerformanceMonitor performanceMonitorPrefab;
+
+        [Header("Save System")]
+        [SerializeField] private bool initializeSaveSystem = true;
 
         private bool isPaused = false;
         private float timeScaleBeforePause = 1.0f;
@@ -80,6 +84,54 @@ namespace ProtocolEMR.Core
             {
                 Instantiate(performanceMonitorPrefab);
                 Debug.Log("PerformanceMonitor instantiated by GameManager");
+            }
+
+            if (initializeSaveSystem)
+            {
+                InitializeSaveSystem();
+            }
+        }
+
+        private void InitializeSaveSystem()
+        {
+            if (ProfileManager.Instance == null)
+            {
+                GameObject profileManager = new GameObject("ProfileManager");
+                profileManager.AddComponent<ProfileManager>();
+                DontDestroyOnLoad(profileManager);
+                Debug.Log("ProfileManager instantiated by GameManager");
+            }
+
+            if (SaveGameManager.Instance == null)
+            {
+                GameObject saveManager = new GameObject("SaveGameManager");
+                saveManager.AddComponent<SaveGameManager>();
+                DontDestroyOnLoad(saveManager);
+                Debug.Log("SaveGameManager instantiated by GameManager");
+            }
+
+            if (StatisticsTracker.Instance == null)
+            {
+                GameObject statsTracker = new GameObject("StatisticsTracker");
+                statsTracker.AddComponent<StatisticsTracker>();
+                DontDestroyOnLoad(statsTracker);
+                Debug.Log("StatisticsTracker instantiated by GameManager");
+            }
+
+            if (SaveTriggerSystem.Instance == null)
+            {
+                GameObject saveTriggers = new GameObject("SaveTriggerSystem");
+                saveTriggers.AddComponent<SaveTriggerSystem>();
+                DontDestroyOnLoad(saveTriggers);
+                Debug.Log("SaveTriggerSystem instantiated by GameManager");
+            }
+
+            if (SaveLoadHotkeyHandler.Instance == null)
+            {
+                GameObject hotkeyHandler = new GameObject("SaveLoadHotkeyHandler");
+                hotkeyHandler.AddComponent<SaveLoadHotkeyHandler>();
+                DontDestroyOnLoad(hotkeyHandler);
+                Debug.Log("SaveLoadHotkeyHandler instantiated by GameManager");
             }
         }
 
