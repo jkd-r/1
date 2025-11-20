@@ -2,6 +2,8 @@
 
 This document defines the comprehensive save/load architecture, account management, player progression tracking, and data persistence systems for Protocol EMR. These systems ensure reliable game state management, multiple profile support, and robust data integrity throughout the player experience.
 
+For integration with procedural story generation systems including seed-based determinism and state preservation of procedurally generated content, see **[Procedural Story Generation](./procedural-story-generation.md)**.
+
 ## Table of Contents
 
 1. [Account/Profile System](#accountprofile-system)

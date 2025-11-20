@@ -4,6 +4,8 @@
 
 The AI Narrator and Missions system provides dynamic, context-aware storytelling and quest management for the Protocol EMR game. This system combines event-driven narration with a flexible mission pipeline to create immersive, reactive gameplay experiences.
 
+For the complete procedural story generation system that integrates AI narrator coupling with seed-based story generation, encounter layering, and dynamic narrative adaptation, see **[Procedural Story Generation](./procedural-story-generation.md)**.
+
 ## AI Narrator Architecture
 
 ### Messaging Channels

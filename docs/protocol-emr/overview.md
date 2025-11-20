@@ -142,6 +142,10 @@ Each loop builds upon previous discoveries, with systems becoming increasingly c
 - Dynamic event triggers
 - Procedural audio generation
 - Content balancing and difficulty scaling
+- End-to-end procedural story generation with seed-based determinism
+- AI narrator coupling with dynamic narrative adaptation
+- Room and encounter layering with story integration
+- See **[Procedural Story Generation](./procedural-story-generation.md)** for detailed specifications
 
 ### 10. Audio & Polish
 **Goal**: Achieve professional-quality presentation

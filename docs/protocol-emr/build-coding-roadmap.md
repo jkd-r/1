@@ -85,6 +85,10 @@ Protocol EMR development is organized into 10 core workstreams grouped into logi
   - Dynamic event triggers
   - Procedural audio generation
   - Content balancing and difficulty scaling
+  - End-to-end procedural story generation pipeline
+  - Seed management and deterministic reproducibility
+  - AI narrator coupling with dynamic narrative adaptation
+  - See **[Procedural Story Generation](./procedural-story-generation.md)** for complete system specifications
 
 - **Sprint 10: Audio & Polish** (Workstream 10)
   - Audio integration and mixing
@@ -128,4 +132,5 @@ Development success is measured by:
 - [NPC Framework](./npc-procedural.md) - Character and AI systems
 - [Save/Load System](./save-load-account.md) - State persistence and progression
 - [AI Narrator & Missions](./ai-narrator-and-missions.md) - Narrative systems
+- [Procedural Story Generation](./procedural-story-generation.md) - End-to-end procedural narrative system
 - [Combat & Movement](./combat-movement.md) - Advanced gameplay mechanics

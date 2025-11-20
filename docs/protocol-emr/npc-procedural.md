@@ -4,6 +4,8 @@
 
 This document defines the NPC (Non-Player Character) framework and procedural generation systems for Protocol EMR. These systems work together to create dynamic, reactive environments with intelligent NPCs that respond contextually to player actions while maintaining narrative coherence through procedurally varied spaces.
 
+For the complete end-to-end procedural story generation system that integrates NPC placement with narrative generation, AI narrator coupling, and seed-based determinism, see **[Procedural Story Generation](./procedural-story-generation.md)**.
+
 ## Table of Contents
 
 1. [NPC Framework](#npc-framework)
