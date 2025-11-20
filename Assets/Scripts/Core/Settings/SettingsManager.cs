@@ -162,6 +162,27 @@ namespace ProtocolEMR.Core.Settings
             ApplySettings();
             SaveSettings();
         }
+
+        public float GetUnknownHintFrequency() => currentSettings.gameplay.unknownHintFrequency;
+        public void SetUnknownHintFrequency(float frequency)
+        {
+            currentSettings.gameplay.unknownHintFrequency = Mathf.Clamp01(frequency);
+            SaveSettings();
+        }
+
+        public int GetUnknownPersonality() => currentSettings.gameplay.unknownPersonality;
+        public void SetUnknownPersonality(int personality)
+        {
+            currentSettings.gameplay.unknownPersonality = Mathf.Clamp(personality, 0, 2);
+            SaveSettings();
+        }
+
+        public bool IsUnknownMessagesEnabled() => currentSettings.gameplay.enableUnknownMessages;
+        public void SetUnknownMessagesEnabled(bool enabled)
+        {
+            currentSettings.gameplay.enableUnknownMessages = enabled;
+            SaveSettings();
+        }
     }
 
     [Serializable]
@@ -197,7 +218,10 @@ namespace ProtocolEMR.Core.Settings
                     mouseSensitivity = 1.0f,
                     difficulty = Difficulty.Normal,
                     hudOpacity = 1.0f,
-                    showObjectiveMarkers = true
+                    showObjectiveMarkers = true,
+                    unknownHintFrequency = 0.5f,
+                    unknownPersonality = 1,
+                    enableUnknownMessages = true
                 },
                 accessibility = new AccessibilitySettings
                 {
@@ -242,6 +266,9 @@ namespace ProtocolEMR.Core.Settings
         public Difficulty difficulty;
         public float hudOpacity;
         public bool showObjectiveMarkers;
+        public float unknownHintFrequency;
+        public int unknownPersonality;
+        public bool enableUnknownMessages;
     }
 
     [Serializable]

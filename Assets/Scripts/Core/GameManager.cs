@@ -2,6 +2,7 @@ using UnityEngine;
 using ProtocolEMR.Core.Input;
 using ProtocolEMR.Core.Settings;
 using ProtocolEMR.Core.Performance;
+using ProtocolEMR.Core.Dialogue;
 
 namespace ProtocolEMR.Core
 {
@@ -18,6 +19,7 @@ namespace ProtocolEMR.Core
         [SerializeField] private InputManager inputManagerPrefab;
         [SerializeField] private SettingsManager settingsManagerPrefab;
         [SerializeField] private PerformanceMonitor performanceMonitorPrefab;
+        [SerializeField] private UnknownDialogueManager unknownDialogueManagerPrefab;
 
         private bool isPaused = false;
         private float timeScaleBeforePause = 1.0f;
@@ -80,6 +82,12 @@ namespace ProtocolEMR.Core
             {
                 Instantiate(performanceMonitorPrefab);
                 Debug.Log("PerformanceMonitor instantiated by GameManager");
+            }
+
+            if (UnknownDialogueManager.Instance == null && unknownDialogueManagerPrefab != null)
+            {
+                Instantiate(unknownDialogueManagerPrefab);
+                Debug.Log("UnknownDialogueManager instantiated by GameManager");
             }
         }
 
