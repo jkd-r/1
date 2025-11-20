@@ -4,13 +4,13 @@
 
 Protocol EMR is a first-person narrative-driven game with procedurally generated content, NPC AI systems, and immersive audio design. This repository contains the complete Unity project foundation with core systems ready for development.
 
-**Current Status**: Sprint 10 - Build Pipeline Polish Complete ✅
+**Current Status**: Sprint 10 - Final Scene Assembly & Playtest Flow Complete ✅
 
 ---
 
-## Features (Sprint 1)
+## Features
 
-### ✅ Implemented
+### ✅ Implemented Core Systems
 
 - **Input System**: Fully remappable controls with keyboard/mouse and gamepad support
 - **First-Person Camera**: Smooth mouse look with camera bobbing and FOV adjustment
@@ -19,10 +19,45 @@ Protocol EMR is a first-person narrative-driven game with procedurally generated
 - **Performance Monitor**: Enhanced real-time FPS, memory, and telemetry monitoring (F1)
 - **Build Pipeline**: Automated build system for Release Candidate and Gold Master builds
 - **Crash Logging**: Telemetry-driven crash detection and performance validation
-- **Procedural Seed System**: Deterministic generation with reproducible seeds
+- **Procedural Seed System**: Deterministic generation with reproducible seeds (F8 to copy)
 - **NPC AI System**: Complete behavior trees, perception, navigation, and combat
 - **Unknown Dialogue System**: Mysterious messaging with phone UI and adaptive personalization
+- **Dynamic Event Orchestrator**: World-state driven event scheduling with dialogue integration
+- **Mission System**: Objective tracking with tutorial → puzzle → combat → extraction flow
+- **Playtest Flow Controller**: Golden path orchestration with auto-checkpoints
+- **Regression Harness**: Automated end-to-end testing suite (F7 to run)
+- **Scene Setup Tools**: Automated scene assembly via Unity menu
 - **Project Structure**: Complete folder hierarchy ready for asset integration
+
+### ✅ Playtest Flow (Golden Path)
+
+The game now supports a complete playthrough loop:
+
+1. **Initialization** (Auto)
+   - Core systems boot
+   - Level generation
+   - Unknown dialogue welcome
+
+2. **Tutorial Phase** (~30s)
+   - Learn movement (WASD)
+   - Learn interaction (E)
+   - Auto-completes after timer
+
+3. **Puzzle Phase**
+   - Discover puzzle mechanics
+   - Solve to progress
+   - Unknown provides hints
+
+4. **Combat Phase**
+   - NPC encounters
+   - Defeat 3 enemies
+   - Dynamic threat levels
+
+5. **Extraction Phase**
+   - Reach extraction point
+   - Mission complete
+
+**Debug Controls**: F11 (skip phase), F12 (print report)
 
 ### Input Controls
 
@@ -39,8 +74,12 @@ Protocol EMR is a first-person narrative-driven game with procedurally generated
 | Pause | ESC | Start |
 | Fire | LMB | Right Trigger |
 | Aim | RMB | Left Trigger |
+| Regression Tests | F7 | - |
 | Copy Seed | F8 | - |
-| Performance Test | F9 | - |
+| Event Orchestrator HUD | F9 | - |
+| Event Demo UI | F10 | - |
+| Skip Phase (Debug) | F11 | - |
+| Print Report (Debug) | F12 | - |
 
 ---
 
@@ -70,9 +109,11 @@ Protocol EMR is a first-person narrative-driven game with procedurally generated
    - Input System
    - TextMeshPro
 
-4. **Open the test scene**:
+4. **Open & prepare the Main scene**:
    - Navigate to `Assets/Scenes/Main.unity`
-   - Press Play to test
+   - Menu: `Protocol EMR → Setup → Setup Main Scene` (auto-creates core GameObjects)
+   - Menu: `Protocol EMR → Setup → Validate Scene` (ensures everything is wired)
+   - Press Play to begin the guided playtest flow
 
 ### First Run
 
