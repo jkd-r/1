@@ -292,13 +292,184 @@ Main.unity
 
 ---
 
+## Step 11: Procedural Level Builder Setup (Sprint 10)
+
+### Overview
+The Procedural Level Builder automatically generates playable levels by stitching modular chunks together with deterministic NPC placement based on the SeedManager.
+
+### Setup for ProceduralTest Scene
+
+#### 1. Create ProceduralTest Scene
+1. **File → New Scene**
+2. **Save as**: `Assets/Scenes/ProceduralTest.unity`
+
+#### 2. Add Core Infrastructure
+1. **Create Empty GameObject**: "GameManager"
+   - Add GameManager component (auto-instantiates core systems)
+2. **Create Empty GameObject**: "LevelBuilder"
+   - Add ProceduralLevelBuilder component
+   - Add ProceduralLevelTester component (for testing UI)
+
+#### 3. Configure ProceduralLevelBuilder
+1. **Select LevelBuilder GameObject**
+2. **ProceduralLevelBuilder component**:
+   - Target Chunk Count: 8
+   - Max Generation Time: 8 seconds
+   - Bake NavMesh Async: ✅ Enabled
+   - Log Generation Metrics: ✅ Enabled
+   - Draw Debug Gizmos: ✅ Enabled (for development)
+3. **Available Chunks**: Assign chunks from Resources/Procedural/Chunks/
+4. **Starting Chunk**: Assign starting chunk definition
+5. **NPC Spawner**: Drag NPCSpawner object from hierarchy
+
+#### 4. Create NPC Spawner
+1. **Create Empty GameObject**: "NPCSpawner"
+   - Position: (0, 0, 0)
+2. **Add NPCSpawner component**:
+   - Spawn On Start: ✅ Enabled
+   - Use Global Seed: ✅ Enabled
+   - Max NPCs Per Level: 30
+3. **Configure NPC Prefabs**: Assign NPC prefab references
+4. **Assign to LevelBuilder**: Drag into NPC Spawner field
+
+#### 5. Generate Test Chunks
+1. **In Editor, Open Console Window**
+2. **Run**: `Protocol EMR > Procedural > Generate Test Chunks`
+   - Creates 3 example chunks (Corridor, Room, Vault)
+3. **Validate**: `Protocol EMR > Procedural > Validate All Chunks`
+   - Checks all chunk definitions for consistency
+
+#### 6. Test the Procedural Scene
+1. **Press Play**
+2. **Expected Behavior**:
+   - Level generates automatically on scene load
+   - Console shows generation metrics:
+     ```
+     [LevelBuilder] Built 8 chunks in ~1.2s
+     [LevelBuilder] NavMesh baking completed in ~0.4s
+     [LevelBuilder] NPC zones provisioned in ~0.02s
+     === LEVEL GENERATION METRICS ===
+     Total Time: 1.703s (Budget: 8.000s)
+     ```
+   - NPCs spawn in procedurally determined zones
+   - Same seed produces identical level layout
+
+#### 7. Test Regeneration
+- **Press R**: Regenerate level with same seed
+- **Press C**: Clear level
+- **F8**: Copy current seed to clipboard
+
+### Creating Your Own Chunk
+
+#### 1. Create Chunk Definition
+1. **Right-click in Assets folder**
+2. **Create > Protocol EMR > Procedural > Chunk Definition**
+3. **Name**: "ChunkDef_MyChunk"
+
+#### 2. Configure Chunk Properties
+1. **Identity**:
+   - Chunk ID: `chunk_my_corridor`
+   - Display Name: `My Custom Corridor`
+   - Biome Type: `interior`
+2. **Dimensions**:
+   - Chunk Size: `(10, 3, 20)` ← Width, Height, Depth
+3. **Level Constraints**:
+   - Min Level: 1
+   - Max Level: 100
+   - Selection Weight: 0.8 ← 80% chance to include
+   - Allow Duplicates: ✅
+
+#### 3. Add Connectors
+1. **Expand Connectors array** → Set Size to 2
+2. **Connector 0 (Entrance)**:
+   - Tag: `corridor_start`
+   - Local Position: `(0, 0, -10)` ← At chunk entrance
+   - Connection Size: `(10, 3, 2)`
+   - Allow Inbound: ✅
+   - Allow Outbound: ❌
+3. **Connector 1 (Exit)**:
+   - Tag: `corridor_end`
+   - Local Position: `(0, 0, 10)` ← At chunk exit
+   - Connection Size: `(10, 3, 2)`
+   - Allow Inbound: ❌
+   - Allow Outbound: ✅
+
+#### 4. Add NPC Zones
+1. **Expand NPC Zone Templates** → Set Size to 1
+2. **Zone 0**:
+   - Zone Name: `patrol_zone`
+   - Center Offset: `(0, 0, 0)`
+   - Zone Size: `(8, 2, 18)`
+   - Min NPCs: 1
+   - Max NPCs: 2
+   - Allowed Types: `Patrol`
+   - Difficulty Multiplier: 1.0
+
+#### 5. Create Chunk Prefab
+1. **Build your chunk geometry** in a test scene
+2. **Add colliders** for all solid surfaces
+3. **Drag into Prefabs folder**: `Assets/Resources/Procedural/Prefabs/`
+4. **Name**: "ChunkPrefab_MyChunk"
+5. **Assign to ChunkDefinition**: Chunk Prefab field
+
+#### 6. Validate and Test
+1. **Run**: `Protocol EMR > Procedural > Validate All Chunks`
+   - Fix any errors reported
+2. **Add to LevelBuilder**: Add to Available Chunks array
+3. **Regenerate level** (R key in test scene)
+   - Your chunk should appear based on probability weight
+
+#### 7. Stress Test
+```
+Protocol EMR > Procedural > Stress Test Chunk Generation
+```
+- Generates 100 different seeds
+- Verifies deterministic ordering
+- Reports usage distribution
+
+### Chunk Hierarchy Example
+
+```
+ChunkPrefab_MyChunk
+├── Floor (Plane or custom mesh)
+├── Walls
+│   ├── NorthWall
+│   ├── SouthWall
+│   ├── EastWall
+│   └── WestWall
+├── Obstacles
+│   └── Crate (BoxCollider)
+└── Lighting
+    └── Point Light
+```
+
+### Performance Monitoring
+
+**Expected Generation Times** (8s budget):
+- Chunk Building: 500ms - 1500ms (70% budget = 5600ms available)
+- NavMesh Baking: 500ms - 1000ms (20% budget = 1600ms available)
+- NPC Provisioning: <100ms (10% budget = 800ms available)
+
+**Total typical**: 1-3 seconds with ample margin
+
+### Integration with Main Scene
+
+To enable procedural generation in Main.unity:
+1. **Add ProceduralLevelBuilder to GameManager's scene**
+2. **Configure same as ProceduralTest setup**
+3. **Game boots directly into generated level**
+4. **Seed can be saved with game state** for replayability
+
+---
+
 ## Next Steps
 
 After completing scene setup:
 1. ✅ Test all input controls
 2. ✅ Verify settings persistence (change sensitivity, restart Unity)
 3. ✅ Create additional test scenes for specific features
-4. → Move to **Sprint 2**: Add Mixamo character and animations
+4. → **Sprint 10**: Set up ProceduralTest scene (see Step 11)
+5. → Move to **Sprint 2**: Add Mixamo character and animations
 
 ---
 

@@ -2158,9 +2158,283 @@ The `SeedManagerTests.cs` validates:
 - **Save Time**: <5ms to persist seed state
 - **Load Time**: <5ms to restore seed state
 
+## Procedural Level Builder System
+
+### Overview
+
+The Procedural Level Builder (`ProceduralLevelBuilder.cs`) is the runtime level assembly pipeline that consumes the SeedManager service to generate complete playable levels by stitching modular chunks together. It provisions NPC spawn zones dynamically based on chunk configuration and maintains performance within an 8-second generation budget.
+
+### Architecture
+
+#### Core Components
+
+1. **ProceduralChunkDefinition** (ScriptableObject)
+   - Defines chunk properties (size, biome, NPC zones, hazards)
+   - Specifies connector tags for stitching chunks together
+   - Provides selection weights and level constraints
+   - Editor validation for chunk consistency
+
+2. **ChunkConnector** (Serializable)
+   - Describes connection points on chunks
+   - Supports directional connectors (inbound/outbound)
+   - Contains world-space transformation data
+   - Validates portal sizes and alignment
+
+3. **ProceduralLevelBuilder** (MonoBehaviour)
+   - Main orchestrator for level generation
+   - Requests chunk graph from SeedManager using SCOPE_CHUNKS
+   - Instantiates chunks and aligns connectors
+   - Triggers async NavMesh baking per chunk
+   - Provisions NPC spawn zones
+
+4. **GeneratedChunkInstance** (Runtime Data)
+   - Tracks instantiated chunks and their metadata
+   - Stores NPC zones provisioned for each chunk
+   - References NavMeshSurface for baking
+
+### Generation Pipeline
+
+#### Step 1: Chunk Graph Generation (Deterministic)
+```csharp
+// Uses SeedManager.SCOPE_CHUNKS to generate reproducible sequence
+var chunkGraph = GenerateChunkGraph();
+// Starting chunk + N procedurally selected chunks
+// Same seed = same chunk sequence
+```
+
+#### Step 2: Level Building with Time Budget
+```csharp
+// Builds level in coroutine to stay within 8s total budget
+yield return StartCoroutine(BuildLevelFromGraphCoroutine(chunkGraph));
+// Instantiates chunks
+// Calculates connector-based positioning
+// Creates NavMeshSurface components
+// Respects 70% budget allocation for building
+```
+
+#### Step 3: NavMesh Baking (Async)
+```csharp
+// Bakes NavMesh per chunk asynchronously
+yield return StartCoroutine(BakeNavMeshAsyncCoroutine());
+// Non-blocking bake operation
+// Checks time budget periodically
+// Respects 20% budget allocation
+```
+
+#### Step 4: NPC Zone Provisioning
+```csharp
+// Transforms NPC zone templates from chunk definitions
+ProvisionNPCZones();
+// Creates dynamic NPCSpawnZone instances
+// Caches seed offsets for replayability
+// Passes zones to NPCSpawner via SetDynamicSpawnZones()
+// Respects 10% budget allocation
+```
+
+### Chunk Definition Workflow
+
+#### Creating a New Chunk
+
+1. **Via Editor Menu**:
+   ```
+   Protocol EMR > Procedural > Create New Chunk Definition
+   ```
+
+2. **Configure Properties**:
+   - **Identity**: Unique chunkId, display name
+   - **Dimensions**: Physical size in world units
+   - **Connectors**: Entry/exit points with tags
+   - **NPC Zones**: Spawn area templates
+   - **Generation Parameters**: Level constraints, selection weight
+
+3. **Validation**:
+   ```
+   Protocol EMR > Procedural > Validate All Chunks
+   ```
+
+#### Chunk Connector Tags
+
+Connectors allow flexible stitching patterns:
+```
+Standard Tags:
+  - "corridor_start" / "corridor_end" (linear progression)
+  - "room_north" / "room_south" / "room_east" / "room_west" (multi-directional)
+  - "vault_entrance" (terminal, one-way)
+  - Custom tags (designer-defined)
+```
+
+#### Selection Weight
+
+Controls probability of chunk appearing in generation:
+- `selectionWeight = 0.8f` → 80% chance to include
+- Filtered randomly using seed to avoid overpopulation
+- `allowDuplicates` flag controls repetition
+
+### Integration with NPCSpawner
+
+The level builder provisions NPC spawn zones dynamically:
+
+```csharp
+// Level builder creates zones from chunk templates
+var allNPCZones = new List<NPCSpawnZone>();
+foreach (var chunk in generatedChunks)
+{
+    foreach (var template in chunk.definition.npcZoneTemplates)
+    {
+        var zone = new NPCSpawnZone
+        {
+            zoneName = $"{chunk.definition.chunkId}_{template.zoneName}",
+            zoneCenter = chunk.instance.transform.TransformPoint(template.centerOffset),
+            zoneSize = template.zoneSize,
+            // ... other properties ...
+            seedOffset = seedOffsetCounter  // Caches seed for replayability
+        };
+        allNPCZones.Add(zone);
+    }
+}
+
+// Pass all zones to NPCSpawner at once
+npcSpawner.SetDynamicSpawnZones(allNPCZones.ToArray());
+```
+
+**Key Features**:
+- NPC zones follow chunk topology exactly
+- Each zone has independent seed offset for deterministic NPC placement
+- NPC density respects chunk size and configuration
+- Replayability guaranteed: same seed = same chunk layout + same NPC placement
+
+### Editor Tools
+
+#### Generate Test Chunks
+```
+Protocol EMR > Procedural > Generate Test Chunks
+```
+
+Creates three example chunk definitions:
+1. **Corridor** - Linear passages, patrol zones
+2. **Room** - Large spaces, multi-directional connectors
+3. **Vault** - Terminal chunk with elite guard zones
+
+#### Stress Test
+```
+Protocol EMR > Procedural > Stress Test Chunk Generation
+```
+
+Validates determinism by:
+- Generating sequences from 100 different seeds
+- Checking connector validation
+- Tracking chunk usage distribution
+- Reporting any non-deterministic behavior
+
+### Performance Budget (8 seconds total)
+
+| Phase | Budget | Typical | Status |
+|-------|--------|---------|--------|
+| **Chunk Building** | 70% (5.6s) | 0.5-1.5s | ✅ Ample margin |
+| **NavMesh Baking** | 20% (1.6s) | 0.5-1.0s | ✅ Ample margin |
+| **NPC Provisioning** | 10% (0.8s) | <0.1s | ✅ Ample margin |
+| **Total** | 100% (8.0s) | 1-3s | ✅ On target |
+
+Telemetry logs actual timings for all phases.
+
+### Determinism Guarantees
+
+1. **Same Seed = Identical Level**
+   - Chunk sequence reproducible
+   - Connector alignment consistent
+   - NPC zone positions identical
+   - NPC counts and types reproducible
+
+2. **Replayability**
+   - Save seed with game state
+   - Load and pass to SeedManager
+   - Level builder regenerates identical world
+   - Player memories match gameplay exactly
+
+### QA Workflow
+
+#### Testing New Chunk
+```
+1. Create ProceduralChunkDefinition asset
+2. Configure connectors and NPC zones
+3. Run Validate All Chunks
+4. Press R in ProceduralTest scene to regenerate
+5. Verify chunk appears when connector conditions met
+6. Check NPC zones align with chunk geometry
+7. Stress test with multiple seeds
+```
+
+#### Verifying Determinism
+```
+1. Start game with seed S
+2. Note level layout and NPC placement
+3. Exit game completely
+4. Restart with same seed S
+5. Verify identical layout and NPC placement
+6. Save game and reload
+7. Confirm state preservation
+```
+
+### Telemetry and Debugging
+
+```csharp
+// Automatic logging of generation metrics
+[LevelBuilder] Built 8 chunks in 1.23s
+[LevelBuilder] NavMesh baking completed in 0.45s
+[LevelBuilder] NPC zones provisioned in 0.02s
+=== LEVEL GENERATION METRICS ===
+Total Time: 1.703s (Budget: 8.000s)
+Chunk Building: 1.234s (72.5%)
+NavMesh Baking: 0.451s (26.5%)
+NPC Provisioning: 0.018s (1.0%)
+Chunks Generated: 8
+Budget Remaining: 6.297s
+Seed: 12345
+```
+
+### Example Chunk Configuration
+
+```csharp
+// Corridor chunk with patrol zone
+var corridorChunk = ScriptableObject.CreateInstance<ProceduralChunkDefinition>();
+corridorChunk.chunkId = "chunk_corridor_a";
+corridorChunk.chunkSize = new Vector3(10f, 3f, 20f);
+corridorChunk.biomeType = "interior";
+
+// Connectors for linear progression
+corridorChunk.connectors = new ChunkConnector[]
+{
+    new ChunkConnector {
+        connectorTag = "corridor_start",
+        localPosition = new Vector3(0, 0, -10f),
+        allowInbound = true,
+        allowOutbound = false
+    },
+    new ChunkConnector {
+        connectorTag = "corridor_end",
+        localPosition = new Vector3(0, 0, 10f),
+        allowInbound = false,
+        allowOutbound = true
+    }
+};
+
+// NPC patrol zone
+corridorChunk.npcZoneTemplates = new ChunkNPCZoneTemplate[]
+{
+    new ChunkNPCZoneTemplate {
+        zoneName = "patrol_zone",
+        centerOffset = Vector3.zero,
+        zoneSize = new Vector3(8f, 2f, 18f),
+        minNPCs = 1,
+        maxNPCs = 2,
+        allowedTypes = new NPCType[] { NPCType.Patrol }
+    }
+};
+```
+
 ---
 
-**Document Version**: 1.1  
+**Document Version**: 1.2  
 **Last Updated**: 2024  
 **Author**: Protocol EMR Development Team  
 **Status**: Active Development
