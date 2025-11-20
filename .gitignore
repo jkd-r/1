@@ -47,6 +47,18 @@ sysinfo.txt
 *.aab
 *.unitypackage
 *.app
+*.exe
+
+# Build artifacts
+Builds/
+build_info*.json
+build_log*.txt
+PerformanceReport*.txt
+BuildValidationReport*.txt
+performance_telemetry*.json
+performance_telemetry*.csv
+crash_log*.json
+crash_log_readable*.txt
 
 # Crashlytics generated file
 crashlytics-build.properties

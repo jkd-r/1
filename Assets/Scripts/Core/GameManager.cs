@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 using ProtocolEMR.Core.Input;
 using ProtocolEMR.Core.Settings;
 using ProtocolEMR.Core.Performance;
@@ -23,6 +24,7 @@ namespace ProtocolEMR.Core
         [SerializeField] private UnknownDialogueManager unknownDialogueManagerPrefab;
         [SerializeField] private SeedManager seedManagerPrefab;
         [SerializeField] private GameObject proceduralStateStorePrefab;
+        [SerializeField] private CrashLogger crashLoggerPrefab;
 
         private bool isPaused = false;
         private float timeScaleBeforePause = 1.0f;
@@ -55,6 +57,11 @@ namespace ProtocolEMR.Core
 
             // Initialize seed system after settings are loaded
             InitializeSeedSystem();
+
+            // Start performance validation for builds
+            #if !UNITY_EDITOR
+            StartCoroutine(PerformanceValidationCoroutine());
+            #endif
 
             Debug.Log("Protocol EMR - Game Manager Initialized");
             Debug.Log($"Unity Version: {Application.unityVersion}");
@@ -106,6 +113,12 @@ namespace ProtocolEMR.Core
             {
                 Instantiate(proceduralStateStorePrefab);
                 Debug.Log("ProceduralStateStore instantiated by GameManager");
+            }
+
+            if (CrashLogger.Instance == null && crashLoggerPrefab != null)
+            {
+                Instantiate(crashLoggerPrefab);
+                Debug.Log("CrashLogger instantiated by GameManager");
             }
         }
 
@@ -179,6 +192,83 @@ namespace ProtocolEMR.Core
                 float progress = Mathf.Clamp01(asyncLoad.progress / 0.9f);
                 Debug.Log($"Loading scene: {progress * 100}%");
                 yield return null;
+            }
+        }
+        
+        /// <summary>
+        /// Performance validation coroutine for build validation.
+        /// </summary>
+        private IEnumerator PerformanceValidationCoroutine()
+        {
+            Debug.Log("Starting performance validation for build...");
+            
+            // Wait for systems to initialize
+            yield return new WaitForSeconds(5f);
+            
+            float validationDuration = 60f; // 1 minute validation
+            float validationTimer = 0f;
+            
+            var performanceMonitor = FindObjectOfType<PerformanceMonitor>();
+            var crashLogger = FindObjectOfType<CrashLogger>();
+            
+            if (performanceMonitor == null)
+            {
+                Debug.LogWarning("PerformanceMonitor not found for validation");
+                yield break;
+            }
+            
+            // Reset performance statistics
+            performanceMonitor.ResetStatistics();
+            
+            while (validationTimer < validationDuration)
+            {
+                validationTimer += Time.deltaTime;
+                
+                // Check for performance issues
+                float currentFPS = performanceMonitor.GetCurrentFPS();
+                float currentMemory = performanceMonitor.GetMemoryUsage() / 1024f / 1024f;
+                
+                if (currentFPS < 30f)
+                {
+                    Debug.LogWarning($"Performance validation: Low FPS detected ({currentFPS:F1})");
+                    if (crashLogger != null)
+                    {
+                        crashLogger.LogCrashEvent("PERFORMANCE_WARNING", $"Low FPS: {currentFPS:F1}");
+                    }
+                }
+                
+                if (currentMemory > 3.5f * 1024f) // 3.5GB
+                {
+                    Debug.LogWarning($"Performance validation: High memory usage ({currentMemory:F2} MB)");
+                    if (crashLogger != null)
+                    {
+                        crashLogger.LogCrashEvent("PERFORMANCE_WARNING", $"High memory: {currentMemory:F2} MB");
+                    }
+                }
+                
+                yield return new WaitForSeconds(1f);
+            }
+            
+            // Generate performance summary
+            var summary = performanceMonitor.GetPerformanceSummary();
+            
+            Debug.Log($"Performance validation complete:");
+            Debug.Log($"  Average FPS: {summary.averageFPS:F1}");
+            Debug.Log($"  Performance Grade: {summary.performanceGrade}");
+            Debug.Log($"  Target 60 FPS Met: {summary.target60FPSMet}");
+            Debug.Log($"  Memory Target Met: {summary.memoryTargetMet}");
+            
+            // Log performance results
+            if (crashLogger != null)
+            {
+                crashLogger.LogCrashEvent("PERFORMANCE_VALIDATION", "Performance validation completed", summary);
+            }
+            
+            // Export telemetry if needed
+            if (!summary.target60FPSMet || !summary.memoryTargetMet)
+            {
+                performanceMonitor.ExportTelemetryToCSV();
+                Debug.LogWarning("Performance targets not met - telemetry exported for analysis");
             }
         }
     }
