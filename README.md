@@ -4,7 +4,7 @@
 
 Protocol EMR is a first-person narrative-driven game with procedurally generated content, NPC AI systems, and immersive audio design. This repository contains the complete Unity project foundation with core systems ready for development.
 
-**Current Status**: Sprint 1 - Foundation Phase Complete ✅
+**Current Status**: Sprint 8 - Unknown Dialogue System Complete ✅
 
 ---
 
