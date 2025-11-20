@@ -156,6 +156,41 @@ namespace ProtocolEMR.Core.Settings
             SaveSettings();
         }
 
+        public float GetCameraBobIntensity() => currentSettings.accessibility.cameraBobIntensity;
+        public void SetCameraBobIntensity(float intensity)
+        {
+            currentSettings.accessibility.cameraBobIntensity = Mathf.Clamp01(intensity);
+            SaveSettings();
+        }
+
+        public bool IsSprintToggleModeEnabled() => currentSettings.accessibility.sprintToggleMode;
+        public void SetSprintToggleMode(bool enabled)
+        {
+            currentSettings.accessibility.sprintToggleMode = enabled;
+            SaveSettings();
+        }
+
+        public float GetMovementSpeedMultiplier() => currentSettings.accessibility.movementSpeedMultiplier;
+        public void SetMovementSpeedMultiplier(float multiplier)
+        {
+            currentSettings.accessibility.movementSpeedMultiplier = Mathf.Clamp(multiplier, 0.5f, 1.5f);
+            SaveSettings();
+        }
+
+        public float GetFootstepVolumeMultiplier() => currentSettings.accessibility.footstepVolumeMultiplier;
+        public void SetFootstepVolumeMultiplier(float multiplier)
+        {
+            currentSettings.accessibility.footstepVolumeMultiplier = Mathf.Clamp01(multiplier);
+            SaveSettings();
+        }
+
+        public bool IsBreathingAudioEnabled() => currentSettings.accessibility.enableBreathingAudio;
+        public void SetBreathingAudioEnabled(bool enabled)
+        {
+            currentSettings.accessibility.enableBreathingAudio = enabled;
+            SaveSettings();
+        }
+
         public void ResetToDefaults()
         {
             currentSettings = GameSettings.GetDefaults();
@@ -205,7 +240,12 @@ namespace ProtocolEMR.Core.Settings
                     enableMotionBlur = true,
                     fieldOfView = 90f,
                     cameraShakeIntensity = 1.0f,
-                    enableCameraBob = true
+                    enableCameraBob = true,
+                    cameraBobIntensity = 1.0f,
+                    sprintToggleMode = false,
+                    movementSpeedMultiplier = 1.0f,
+                    footstepVolumeMultiplier = 1.0f,
+                    enableBreathingAudio = true
                 }
             };
         }
@@ -248,6 +288,11 @@ namespace ProtocolEMR.Core.Settings
         public float fieldOfView;
         public float cameraShakeIntensity;
         public bool enableCameraBob;
+        public float cameraBobIntensity;
+        public bool sprintToggleMode;
+        public float movementSpeedMultiplier;
+        public float footstepVolumeMultiplier;
+        public bool enableBreathingAudio;
     }
 
     public enum QualityPreset
