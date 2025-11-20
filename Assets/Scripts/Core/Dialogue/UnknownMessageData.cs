@@ -64,6 +64,15 @@ namespace ProtocolEMR.Core.Dialogue
         AggressiveApproach,
         DocumentRead,
         
+        // Dynamic Events
+        DynamicEventAmbient,
+        DynamicEventCombat,
+        DynamicEventPuzzle,
+        DynamicEventStarted,
+        DynamicEventResolved,
+        DynamicEventMilestone,
+        DynamicEventFailed,
+        
         // General
         GameStart,
         PlayerDeath,
