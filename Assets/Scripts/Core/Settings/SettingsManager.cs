@@ -205,7 +205,11 @@ namespace ProtocolEMR.Core.Settings
                     enableMotionBlur = true,
                     fieldOfView = 90f,
                     cameraShakeIntensity = 1.0f,
-                    enableCameraBob = true
+                    enableCameraBob = true,
+                    highContrastMode = false,
+                    uiScale = 1.0f,
+                    enableSubtitles = true,
+                    subtitleSize = 1
                 }
             };
         }
@@ -248,6 +252,10 @@ namespace ProtocolEMR.Core.Settings
         public float fieldOfView;
         public float cameraShakeIntensity;
         public bool enableCameraBob;
+        public bool highContrastMode;
+        public float uiScale;
+        public bool enableSubtitles;
+        public int subtitleSize;
     }
 
     public enum QualityPreset
@@ -272,6 +280,14 @@ namespace ProtocolEMR.Core.Settings
         None,
         Protanopia,
         Deuteranopia,
-        Tritanopia
+        Tritanopia,
+        Achromatopsia
+    }
+
+    public enum SubtitleSize
+    {
+        Small = 0,
+        Medium = 1,
+        Large = 2
     }
 }
