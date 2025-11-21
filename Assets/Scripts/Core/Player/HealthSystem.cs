@@ -47,9 +47,9 @@ namespace ProtocolEMR.Core.Player
             currentHealth -= damage;
             OnDamageTaken?.Invoke(damage);
 
-            if (HUDManager.Instance != null)
+            if (HUDDisplay.Instance != null)
             {
-                HUDManager.Instance.ShowDamageIndicator(damageDirection, damage / maxHealth);
+                HUDDisplay.Instance.ShowDamageIndicator(damageDirection, damage / maxHealth);
             }
 
             if (NotificationManager.Instance != null && damage > 0)
@@ -101,10 +101,10 @@ namespace ProtocolEMR.Core.Player
 
         private void UpdateHUD()
         {
-            if (HUDManager.Instance != null)
+            if (HUDDisplay.Instance != null)
             {
-                HUDManager.Instance.SetHealth(currentHealth, maxHealth);
-                HUDManager.Instance.SetStamina(currentStamina, maxStamina);
+                HUDDisplay.Instance.SetHealth(currentHealth, maxHealth);
+                HUDDisplay.Instance.SetStamina(currentStamina, maxStamina);
             }
         }
 
@@ -113,9 +113,9 @@ namespace ProtocolEMR.Core.Player
             isDead = true;
             OnDeath?.Invoke();
 
-            if (HUDManager.Instance != null)
+            if (HUDDisplay.Instance != null)
             {
-                HUDManager.Instance.AddNotification("You died...", 5f);
+                HUDDisplay.Instance.AddNotification("You died...", 5f);
             }
 
             Debug.Log("Player died!");

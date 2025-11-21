@@ -7,7 +7,7 @@ using ProtocolEMR.Core.Input;
 
 namespace ProtocolEMR.UI
 {
-    public class SettingsPanelUI : MonoBehaviour
+    public class SettingsUI : MonoBehaviour
     {
         [Header("Graphics Settings")]
         [SerializeField] private Slider resolutionSlider;
@@ -225,9 +225,9 @@ namespace ProtocolEMR.UI
             if (hudOpacityText != null)
                 hudOpacityText.text = $"{value:F0}%";
 
-            if (HUDManager.Instance != null)
+            if (HUDDisplay.Instance != null)
             {
-                HUDManager.Instance.SetHUDOpacity(value / 100f);
+                HUDDisplay.Instance.SetHUDOpacity(value / 100f);
             }
         }
 

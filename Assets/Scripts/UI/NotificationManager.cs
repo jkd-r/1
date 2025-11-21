@@ -48,14 +48,14 @@ namespace ProtocolEMR.UI
 
         public void ShowNotification(string message, NotificationType type = NotificationType.SystemMessage)
         {
-            if (HUDManager.Instance == null)
+            if (HUDDisplay.Instance == null)
             {
-                Debug.LogWarning($"HUDManager not found. Cannot show notification: {message}");
+                Debug.LogWarning($"HUDDisplay not found. Cannot show notification: {message}");
                 return;
             }
 
             float duration = GetDurationForType(type);
-            HUDManager.Instance.AddNotification(message, duration);
+            HUDDisplay.Instance.AddNotification(message, duration);
         }
 
         public void ShowItemPickup(string itemName, int quantity = 1)
