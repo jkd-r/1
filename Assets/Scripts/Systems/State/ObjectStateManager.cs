@@ -266,6 +266,40 @@ namespace ProtocolEMR.Systems
         {
             return proceduralState;
         }
+
+        /// <summary>
+        /// Restores object and procedural state from a snapshot.
+        /// </summary>
+        public void RestoreWorldState(List<ObjectState> states, ProceduralState restoredProceduralState)
+        {
+            objectStates.Clear();
+
+            if (states != null)
+            {
+                foreach (var state in states)
+                {
+                    if (state == null || string.IsNullOrEmpty(state.objectId))
+                        continue;
+
+                    objectStates[state.objectId] = state;
+                }
+            }
+
+            if (restoredProceduralState != null)
+            {
+                proceduralState = restoredProceduralState;
+
+                if (ProtocolEMR.Core.Procedural.SeedManager.Instance != null)
+                {
+                    ProtocolEMR.Core.Procedural.SeedManager.Instance.SetSeed(proceduralState.seed);
+
+                    foreach (var offset in proceduralState.scopeOffsets)
+                    {
+                        ProtocolEMR.Core.Procedural.SeedManager.Instance.SetScopeOffset(offset.scope, offset.offset);
+                    }
+                }
+            }
+        }
     }
 
     [Serializable]

@@ -333,6 +333,26 @@ namespace ProtocolEMR.Core.Dialogue
             return new List<MessageHistory>(messageHistory);
         }
 
+        public Dictionary<string, float> GetMessageCooldownSnapshot()
+        {
+            return new Dictionary<string, float>(messageCooldowns);
+        }
+
+        public float GetLastMessageTimestamp()
+        {
+            return lastMessageTime;
+        }
+
+        public void RestoreDialogueState(IEnumerable<MessageHistory> history, Dictionary<string, float> cooldowns, float restoredTimestamp, PlayerStyleProfile restoredProfile)
+        {
+            messageHistory = history != null ? new List<MessageHistory>(history) : new List<MessageHistory>();
+            messageCooldowns = cooldowns != null ? new Dictionary<string, float>(cooldowns) : new Dictionary<string, float>();
+            lastMessageTime = restoredTimestamp;
+            playerStyleProfile = restoredProfile != null
+                ? JsonUtility.FromJson<PlayerStyleProfile>(JsonUtility.ToJson(restoredProfile))
+                : new PlayerStyleProfile();
+        }
+
         public void ClearMessageHistory()
         {
             messageHistory.Clear();
