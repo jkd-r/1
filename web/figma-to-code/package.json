@@ -1,0 +1,46 @@
+{
+  "name": "figma-to-code-generator",
+  "version": "1.0.0",
+  "description": "A web application that converts Figma designs to production-ready code",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "test:performance": "vitest run src/services/generator.test.js",
+    "lighthouse": "lhci autorun",
+    "lighthouse:dev": "lighthouse http://localhost:5173 --output html --output-path ./lighthouse-report.html",
+    "lighthouse:ci": "./scripts/run-lighthouse.sh",
+    "lighthouse:check": "lighthouse http://localhost:5173 --output=json --output-path=./lighthouse-results.json && node scripts/check-lighthouse-score.js",
+    "start": "node server.js"
+  },
+  "keywords": [
+    "figma",
+    "code-generation",
+    "design-to-code",
+    "web-development"
+  ],
+  "author": "Protocol EMR Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "vitest": "^1.0.0",
+    "@vitest/ui": "^1.0.0",
+    "@vitest/coverage-v8": "^1.0.0",
+    "@lhci/cli": "^0.12.0",
+    "lighthouse": "^11.0.0",
+    "jsdom": "^23.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
