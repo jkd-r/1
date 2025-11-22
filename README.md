@@ -28,6 +28,7 @@ Protocol EMR is a first-person narrative-driven game with procedurally generated
 - **Regression Harness**: Automated end-to-end testing suite (F7 to run)
 - **Scene Setup Tools**: Automated scene assembly via Unity menu
 - **Project Structure**: Complete folder hierarchy ready for asset integration
+- **Figma to Code Generator**: Web application for converting Figma designs to production-ready code
 
 ### ✅ Playtest Flow (Golden Path)
 
@@ -147,9 +148,14 @@ Assets/
 ├── Animations/            # Animation clips and controllers
 ├── VFX/                   # Visual effects and shaders
 ├── UI/                    # UI sprites and prefabs
-└── Documentation/         # Setup guides and standards
-    ├── ProjectSetup.md    # Unity project setup guide
-    └── AssetSourcing.md   # Free asset sources
+├── Documentation/         # Setup guides and standards
+│   ├── ProjectSetup.md    # Unity project setup guide
+│   └── AssetSourcing.md   # Free asset sources
+└── Web/                   # Web applications and tools
+    └── figma-to-code/     # Figma to Code Generator
+        ├── src/           # Source code
+        ├── public/        # Static assets
+        └── dist/          # Build output
 ```
 
 ---
@@ -413,6 +419,33 @@ refactor: Extract input callbacks to separate methods
 - **[Project Setup Guide](./Assets/Documentation/ProjectSetup.md)**: Unity configuration and setup
 - **[Asset Sourcing Guide](./Assets/Documentation/AssetSourcing.md)**: Free asset sources and import procedures
 - **[Build & Coding Roadmap](./docs/protocol-emr/build-coding-roadmap.md)**: Complete development roadmap
+- **[Figma to Code Generator](./web/figma-to-code/README.md)**: Web application for converting Figma designs to code
+
+---
+
+## Web Tools & Applications
+
+### Figma to Code Generator
+
+A powerful web application that converts Figma designs to production-ready code across multiple frameworks.
+
+**Features:**
+- Multi-framework support (React, Vue, Angular, HTML, Tailwind CSS, Bootstrap)
+- Real-time code generation with performance metrics
+- History management and conversion tracking
+- Live preview for HTML output
+- Performance optimized with >90 Lighthouse score target
+
+**Quick Start:**
+```bash
+cd web/figma-to-code
+npm install
+npm run dev
+```
+
+Visit `http://localhost:5173` to access the application.
+
+For detailed documentation, see [web/figma-to-code/README.md](./web/figma-to-code/README.md)
 
 ---
 
