@@ -1,0 +1,68 @@
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  background-color: #252526;
+  border-bottom: 1px solid #3e3e42;
+  gap: 16px;
+}
+
+.toolbar-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toolbar-section label {
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #858585;
+}
+
+.design-input {
+  padding: 6px 8px;
+  min-width: 200px;
+  max-width: 300px;
+}
+
+.toolbar-btn {
+  padding: 8px 12px;
+  font-size: 13px;
+  background-color: #0e639c;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.toolbar-btn:hover {
+  background-color: #1177bb;
+}
+
+.toolbar-btn:active {
+  background-color: #0d47a1;
+}
+
+.download-btn {
+  background-color: #107c10;
+}
+
+.download-btn:hover {
+  background-color: #107e1f;
+}
+
+@media (max-width: 1200px) {
+  .toolbar {
+    flex-wrap: wrap;
+  }
+
+  .toolbar-section {
+    flex-basis: 100%;
+  }
+}
