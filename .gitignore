@@ -117,3 +117,11 @@ yarn-error.log*
 
 # Plastic SCM
 .plastic/
+
+# Web workspace artifacts
+node_modules/
+dist/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+**/.vite/
