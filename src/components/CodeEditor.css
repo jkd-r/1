@@ -1,0 +1,39 @@
+.code-editor-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #1e1e1e;
+}
+
+.editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  background-color: #252526;
+  border-bottom: 1px solid #3e3e42;
+  gap: 12px;
+}
+
+.editor-title {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.file-name-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.language-select {
+  min-width: 120px;
+}
+
+.editor-wrapper {
+  flex: 1;
+  overflow: hidden;
+  background-color: #1e1e1e;
+}
